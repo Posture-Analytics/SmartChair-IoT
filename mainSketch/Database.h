@@ -5,12 +5,12 @@
 
 class DataReader;
 
-// Define the API Key
+// // Define the API Key
 #define DATABASE_API_KEY "AIzaSyCO3WjQJodTcimQjzQnQ5_ZpEgxyaQR-0o";
-// Define the RTDB (Realtime Database) URL
+// // Define the RTDB (Realtime Database) URL
 #define DATABASE_URL "https://friendly-bazaar-334818-default-rtdb.firebaseio.com/";
 
-// Test database credentials
+// // Test database credentials
 // #define DATABASE_API_KEY "AIzaSyASxq5x-HYYTv1jLM2L1WJoC2xFTOaCj2E";
 // #define DATABASE_URL "https://esp32test-115a2-default-rtdb.firebaseio.com/";
 
@@ -27,7 +27,7 @@ class Database {
     // Create a JSON object to hold and organize the data before be sended to database
     FirebaseJson jsonBuffer;
     // Create some variables to help to fill the JSON object until a certain size
-    const int jsonBatchSize = 15;
+    const int jsonBatchSize = 50;
     int jsonSize = 0;
 
     // Define variables to handle the timestamp to datetime conversion
@@ -43,7 +43,7 @@ class Database {
     bool last_was_valid;
  
     char key[32];
-    int index = 0;
+    // int index = 0;
 
  public:
     Database();

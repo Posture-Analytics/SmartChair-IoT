@@ -4,15 +4,14 @@
 #include <FirebaseESP32.h>
 #include "ExternalADCs.h"
 
-time_t getCurrentTime();
+// time_t getCurrentTime();
 
 // Define a struct to organize the collected data
 struct sensorData {
     const static int sensorCount = 12;
 
     // 4 bytes
-    unsigned long timestampUnix;
-    unsigned long timestampMillis;
+    unsigned long long timestampMillis;
     unsigned long sum = 0;
 
     // 2 bytes each
@@ -26,7 +25,7 @@ class DataReader {
     ADCs adcs;
 
     // Sample Rate of the data collection, in hertz (Hz)
-    const int SAMPLE_RATE = 2;
+    const int SAMPLE_RATE = 50;
     // Define the pins that will be used to read the pressure sensors through the internal ADC (ADC1)
     const uint8_t pins[4] = {A2, A3, A4, A5};
 

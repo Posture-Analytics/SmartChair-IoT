@@ -60,3 +60,14 @@ time_t getCurrentTime() {
     time(&now);
     return now;
 }
+
+// Function that return the current timestamp in milliseconds since 01 January 1970
+unsigned long long getCurrentMillisTimestamp() {
+    struct timeval tv;
+
+    // Fill the timeval struct with the current time (tv_sec and tv_usec)
+    gettimeofday(&tv, NULL);
+
+    // Return the current timestamp in milliseconds
+    return tv.tv_sec * 1000LL + tv.tv_usec / 1000LL;
+}

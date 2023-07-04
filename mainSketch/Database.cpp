@@ -7,8 +7,9 @@
 #include "DataReader.h"
 #include "Database.h"
 #include "Errors.h"
+#include "Network.h"
 
-Database::Database() : last_was_valid(true), dataPath("/sensor_readings_NS/") {}
+Database::Database() : last_was_valid(true), dataPath("/sensor_readings/") {}
 
 // Function that setup the database connection
 void Database::setup(time_t timestampUnix) {
@@ -45,7 +46,7 @@ void Database::bootLog() {
     // If the Firebase Database is ready to receive the data, we record the timestamp of the device's boot
     if (Firebase.ready()) {
         // Record the current timestamp string to the database
-        if (Firebase.pushInt(fbdo, "/bootLog/", getCurrentTime())) {
+        if (Firebase.pushInt(fbdo, "/bootLog/", getCurrentMillisTimestamp())) {
             Serial.println("Inicialização registrada com sucesso!");
         // If some error occur during this record, we show as a fatal database error and restart the device
         } else {
@@ -85,7 +86,7 @@ void Database::appendDataToJSON(const sensorData* data) {
     */
 
     // Set the key of the payload as a concatenation of the date, UNIX/Epoch Time
-    snprintf(key, 32, "%lu_%03d/", data->timestampUnix, data->timestampMillis % 1000);
+    snprintf(key, 32, "%llu/", data->timestampMillis);
 
     // Add the pressure sensors data to the payload
     payload = "P";

@@ -1,4 +1,5 @@
 #include "DataReader.h"
+#include "Network.h"
 
 void DataReader::updateCurrentTime() {
     currentMicros = micros();
@@ -19,8 +20,7 @@ void DataReader::fillBuffer() {
 
     if (currentMicros - dataPrevColletionMicros > dataCollectInterval || dataPrevColletionMicros == 0) {
         // Fill the buffer with collect time data
-        buffer[writeIndex].timestampUnix = getCurrentTime();
-        buffer[writeIndex].timestampMillis = millis();
+        buffer[writeIndex].timestampMillis = getCurrentMillisTimestamp();
 
         // Fill the buffer with sensors data connected to the internal ADC
         int i = 0;

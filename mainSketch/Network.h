@@ -25,4 +25,6 @@ void printLocalTime();
 
 time_t getCurrentTime();
 
+unsigned long long getCurrentMillisTimestamp();
+
 #endif  // Network_H_
