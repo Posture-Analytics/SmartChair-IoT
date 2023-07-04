@@ -8,7 +8,7 @@
 #include "Database.h"
 #include "Errors.h"
 
-Database::Database() : last_was_valid(true), dataPath("/sensor_readings_test/") {}
+Database::Database() : last_was_valid(true), dataPath("/sensor_readings_NS/") {}
 
 // Function that setup the database connection
 void Database::setup(time_t timestampUnix) {
@@ -77,25 +77,25 @@ bool checkSample(const sensorData* sample) {
 
 // Funcion that append sensor data into the JSON object
 void Database::appendDataToJSON(const sensorData* data) {
-    // Key: 14 characters for the initial timestamp, 3 for the key (p00, for example) and 1 for the terminator
     // The buffers are bigger to avoid overflow and to use a multiple of 2
     /*
     *  Set the node where the data will be stored as a concatenation of the date, UNIX/Epoch Time
     *  and the device's millis timestamp, getting the index where the pressure key will be stored.
     *  Note: the database doesn't seem to accept a key with a '.' in it, so the split will remain a '_'.
     */
-    
-    index = 0;
-    index += snprintf(key, 32, "%lu_%03d/", data->timestampUnix, data->timestampMillis % 1000);
 
-    // Iterate over each sensor data, adding it into the node with an identification index
+    // Set the key of the payload as a concatenation of the date, UNIX/Epoch Time
+    snprintf(key, 32, "%lu_%03d/", data->timestampUnix, data->timestampMillis % 1000);
+
+    // Add the pressure sensors data to the payload
+    payload = "P";
     for (int i = 0; i < data->sensorCount; i++) {
-        // Adds the datapoint to the string after the timestamp with a padding of '0'
-        snprintf(key + index, 4, "p%02d", i);
-        jsonBuffer.add(key, data->pressure[i]);
+        payload += data->pressure[i];
+        payload += ";";
     }
 
-    jsonBuffer.add("timestampUnix", data->timestampUnix);
+    // Add the payload to the JSON buffer
+    jsonBuffer.add(key, payload);
 
     // Increment the jsonSize to keep control of how many data samples are been stored in the JSON buffer
     jsonSize++;
