@@ -34,6 +34,9 @@ class Database {
 
     // Stores whether or not the last sample from the sensors was valid (non-zero)
     bool last_was_valid;
+ 
+    char key[32];
+    int index = 0;
 
  public:
     Database();

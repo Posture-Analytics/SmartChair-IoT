@@ -65,5 +65,16 @@ void loop() {
 
 // Task attached to core 0
 void sendToDatabase(void* pvParameters) {
-    database.sendData(dataReader);
+
+    while(true){
+      // If the buffer is empty, wait for the data collection task to fill it
+      if (!dataReader.isBufferEmpty()) {
+          database.sendData(dataReader);
+      }else{
+          vTaskDelay(10);
+          yield();
+      }
+    }
+    
+    Serial.println("OUTER LOOP");
 }

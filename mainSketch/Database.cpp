@@ -8,7 +8,7 @@
 #include "Database.h"
 #include "Errors.h"
 
-Database::Database() : last_was_valid(true), dataPath("/sensor_readings/") {}
+Database::Database() : last_was_valid(true), dataPath("/sensor_readings_test/") {}
 
 // Function that setup the database connection
 void Database::setup(time_t timestampUnix) {
@@ -69,13 +69,13 @@ void Database::bootLog() {
 void Database::appendDataToJSON(const sensorData* data) {
     // Key: 14 characters for the initial timestamp, 3 for the key (p00, for example) and 1 for the terminator
     // The buffers are bigger to avoid overflow and to use a multiple of 2
-    char key[32];
-    int index = 0;
     /*
     *  Set the node where the data will be stored as a concatenation of the date, UNIX/Epoch Time
     *  and the device's millis timestamp, getting the index where the pressure key will be stored.
     *  Note: the database doesn't seem to accept a key with a '.' in it, so the split will remain a '_'.
     */
+    
+    index = 0;
     index += snprintf(key, 32, "%lu_%03d/", data->timestampUnix, data->timestampMillis % 1000);
 
     // Iterate over each sensor data, adding it into the node with an identification index
@@ -85,80 +85,76 @@ void Database::appendDataToJSON(const sensorData* data) {
         jsonBuffer.add(key, data->pressure[i]);
     }
 
+    jsonBuffer.add("timestampUnix", data->timestampUnix);
+
     // Increment the jsonSize to keep control of how many data samples are been stored in the JSON buffer
     jsonSize++;
 }
 
 // Function that sends the JSON object to the database, update the node asynchronously
 void Database::sendData(DataReader& dataReader) {
-    while (true) {
+        
+    // If the Firebase Database is ready to receive the data, we send it asynchronously
+    // to be faster and to be able the send a larger amount of the data points per second
+    if (Firebase.ready()) {
 
-        // If the buffer is empty, wait for the data collection task to fill it
-        if (dataReader.isBufferEmpty()) {
-            vTaskDelay(10);
-            yield();
-            continue;
-        }
+        const sensorData* sample = dataReader.getSample();
+        // Concatenate all the values in a JSON buffer
+        appendDataToJSON(sample);
 
-        // If the Firebase Database is ready to receive the data, we send it asynchronously
-        // to be faster and to be able the send a larger amount of the data points per second
-        if (Firebase.ready()) {
-
-            const sensorData* sample = dataReader.getSample();
-            // Concatenate all the values in a JSON buffer
-            appendDataToJSON(sample);
-
-            bool current_is_valid = sample->sum > 0;
-            // If the sample being processed is non-zero, it is always sent to the database
-            // Else, it is only sent if the last sample was valid, so that we don't send
-            // too many null values to the database in succession
-            if (current_is_valid || last_was_valid) {
-                // If debugging, only print the values instead of sending them to the database
-                #ifdef DEBUG
-                    char string[13 * sensorCount + 1];
-                    int index = 0;
-                    // Print all the collected sensors data on the serial port
-                    for (int i = 0; i < sensorCount; i++) {
-                        index += snprintf(string + index, 13, "p%02d: %d; ", i, buffer[readIndex].pressure[i]);
-                    }
-                    Serial.println(string);
-                    jsonSize = 0;
-                #else
-                // If the JSON buffer is full, send the data to the database
-                if (jsonSize >= jsonCapacity) {
-                    // Send the data to database
-                    Firebase.updateNodeSilentAsync(fbdo, dataPath, jsonBuffer);
-                    // Clear the JSON buffer and reset the counter
-                    jsonBuffer.clear();
-                    jsonSize = 0;
+        bool current_is_valid = sample->sum > 0;
+        // If the sample being processed is non-zero, it is always sent to the database
+        // Else, it is only sent if the last sample was valid, so that we don't send
+        // too many null values to the database in succession
+        // if (current_is_valid || last_was_valid) {
+        if(true){
+            // If debugging, only print the values instead of sending them to the database
+            #ifdef DEBUG
+                char string[13 * sensorCount + 1];
+                int stringIndex = 0;
+                // Print all the collected sensors data on the serial port
+                for (int i = 0; i < sensorCount; i++) {
+                    stringIndex += snprintf(string + index, 13, "p%02d: %d; ", i, buffer[readIndex].pressure[i]);
                 }
-                #endif
+                Serial.println(string);
+                jsonSize = 0;
+            #else
+            // If the JSON buffer is full, send the data to the database
+            // if (jsonSize >= jsonCapacity) {
+            if(true){
+                // Send the data to database
+                // Firebase.updateNodeSilentAsync(fbdo, dataPath, jsonBuffer);
+                Serial.printf("Update json... %s\n\n", Firebase.updateNode(fbdo, dataPath, jsonBuffer) ? "ok" : fbdo.errorReason().c_str());
+                // Clear the JSON buffer and reset the counter
+                jsonBuffer.clear();
+                jsonSize = 0;
             }
-
-            last_was_valid = current_is_valid;
-
-            // If there's more data on the buffer to be send to the database, restart the loop
-            if (!dataReader.isBufferEmpty()) {
-                continue;
-            }
-
-            // Update the LED indicator, showing that everything works fine
-            showError(none);
-        } else {
-            if (WiFi.status() != WL_CONNECTED) {
-                showError(noInternet);
-                Serial.println("Reconectando à rede...");
-            } else {
-                showError(noDatabaseConnection);
-                Serial.println("Reconectando ao banco de dados...");
-            }
+            #endif
         }
 
-        // Print the buffer state
-        dataReader.printBufferState();
+        last_was_valid = current_is_valid;
 
-        // If we just send an amount of data to the database, give an interval to Core 0 to work on maintence activities, avoiding crash problems
-        vTaskDelay(10);
-        yield();
+        // // If there's more data on the buffer to be send to the database, restart the loop
+        // if (!dataReader.isBufferEmpty()) {
+        //     continue;
+        // }
+
+        // Update the LED indicator, showing that everything works fine
+        showError(none);
+    } else {
+        if (WiFi.status() != WL_CONNECTED) {
+            showError(noInternet);
+            Serial.println("Reconectando à rede...");
+        } else {
+            showError(noDatabaseConnection);
+            Serial.println("Reconectando ao banco de dados...");
+        }
     }
+
+    // Print the buffer state
+    dataReader.printBufferState();
+
+    // If we just send an amount of data to the database, give an interval to Core 0 to work on maintence activities, avoiding crash problems
+    vTaskDelay(10);
+    yield();
 }
