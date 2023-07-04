@@ -23,7 +23,7 @@ class Database {
     // Create a JSON object to hold and organize the data before be sended to database
     FirebaseJson jsonBuffer;
     // Create some variables to help to fill the JSON object until a certain size
-    const int jsonCapacity = 15;
+    const int jsonBatchSize = 15;
     int jsonSize = 0;
 
     // Define variables to handle the timestamp to datetime conversion

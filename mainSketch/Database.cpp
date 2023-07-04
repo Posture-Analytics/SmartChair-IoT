@@ -53,7 +53,7 @@ void Database::bootLog() {
             Serial.println(fbdo.errorReason().c_str());
             showError(noDatabaseConnection, true);
         }
-    // If the Firebase Database is not ready, we show the corresponding error
+    // If the Firebase Database is not ready, we try to reconnect to the network and to the database
     } else {
         if (WiFi.status() != WL_CONNECTED) {
             showError(noInternet, true);
@@ -62,6 +62,16 @@ void Database::bootLog() {
             showError(noDatabaseConnection, true);
             Serial.println("Reconectando ao banco de dados...");
         }
+    }
+}
+
+// Function to check if the sample is valid (if it has at least one non-zero value)
+bool checkSample(const sensorData* sample) {
+    // Check if the sum of the sample values is greater than zero
+    if (sample->sum > 0) {
+        return true;
+    }else{
+        return false;
     }
 }
 
@@ -98,16 +108,18 @@ void Database::sendData(DataReader& dataReader) {
     // to be faster and to be able the send a larger amount of the data points per second
     if (Firebase.ready()) {
 
+        // Get one sample from the sensor data buffer
         const sensorData* sample = dataReader.getSample();
-        // Concatenate all the values in a JSON buffer
-        appendDataToJSON(sample);
 
-        bool current_is_valid = sample->sum > 0;
+        // Check if the current sample is valid
+        bool current_is_valid = checkSample(sample);
+
+        // If the current or the last sample is valid, we send the data to the database
         // If the sample being processed is non-zero, it is always sent to the database
         // Else, it is only sent if the last sample was valid, so that we don't send
         // too many null values to the database in succession
-        // if (current_is_valid || last_was_valid) {
-        if(true){
+        if (current_is_valid || last_was_valid) {
+
             // If debugging, only print the values instead of sending them to the database
             #ifdef DEBUG
                 char string[13 * sensorCount + 1];
@@ -119,12 +131,19 @@ void Database::sendData(DataReader& dataReader) {
                 Serial.println(string);
                 jsonSize = 0;
             #else
+            // Concatenate the sample in a JSON buffer
+            appendDataToJSON(sample);
+
             // If the JSON buffer is full, send the data to the database
-            // if (jsonSize >= jsonCapacity) {
-            if(true){
+            if (jsonSize >= jsonBatchSize) {
                 // Send the data to database
-                // Firebase.updateNodeSilentAsync(fbdo, dataPath, jsonBuffer);
-                Serial.printf("Update json... %s\n\n", Firebase.updateNode(fbdo, dataPath, jsonBuffer) ? "ok" : fbdo.errorReason().c_str());
+                if(!Firebase.updateNodeSilentAsync(fbdo, dataPath, jsonBuffer)) {
+                    // Update the LED indicator, showing that everything works fine
+                    showError(none);
+                } else {
+                    Serial.println(fbdo.errorReason().c_str());
+                    showError(noDatabaseConnection);
+                }
                 // Clear the JSON buffer and reset the counter
                 jsonBuffer.clear();
                 jsonSize = 0;
@@ -132,15 +151,10 @@ void Database::sendData(DataReader& dataReader) {
             #endif
         }
 
+        // Update the last_was_valid variable
         last_was_valid = current_is_valid;
 
-        // // If there's more data on the buffer to be send to the database, restart the loop
-        // if (!dataReader.isBufferEmpty()) {
-        //     continue;
-        // }
-
-        // Update the LED indicator, showing that everything works fine
-        showError(none);
+    // If the Firebase Database is not ready, we search for database or network errors
     } else {
         if (WiFi.status() != WL_CONNECTED) {
             showError(noInternet);
