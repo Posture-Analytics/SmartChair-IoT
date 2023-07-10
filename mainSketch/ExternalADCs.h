@@ -9,25 +9,29 @@
 // Define the addresses of the external ADCs connected to the I2C bus
 #define I2C_ADDRESS_1 0x48
 #define I2C_ADDRESS_2 0x49
-// Define constants to set the external ADCs (Analog to Digital Converter)
+
+// Define constants to setup the external ADCs (Analog to Digital Converter)
 #define VOLTAGE_RANGE ADS1115_RANGE_4096
 #define MEASURE_MODE ADS1115_SINGLE
 #define CONVERSION_RATE ADS1115_860_SPS
 
-class ADCs {
-    // Set the list of channels that will be iterated during the data collection
-    static const ADS1115_MUX channels[4];
-
+class ExternalADCs {
+  
+    // Instantiate 2 ADS1115_WE objects, one for each external ADC
     ADS1115_WE adcs[2];
-    int reads[2];
+
+    // Save the reads from the ADCs
+    int externalAdcsValues[2];
 
  public:
-    ADCs();
 
-    void setup();
+    // Setup the external ADCs
+    bool setup();
 
+    // Read the external ADCs in parallel, according to the channel index
     void read(int channelIndex);
 
+    // Get the read from the external ADCs, according to the index
     int get(int index) const;
 };
 
