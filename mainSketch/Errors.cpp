@@ -8,7 +8,7 @@
 #define CHIPSET WS2812  // Type of the LED
 
 const int NUM_LEDS = 1;  // Number of LEDs
-const int BRIGHTNESS = 100;  // LED brightness
+const int BRIGHTNESS = 10;  // LED brightness (0-255)
 
 // Create a LED array with the RGB built-in LED
 CRGB leds[NUM_LEDS];
@@ -17,13 +17,16 @@ CRGB leds[NUM_LEDS];
 void setupLED() {
     // Setup the built-in RGB LED
     FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+    // Set the LED brightness
     FastLED.setBrightness(BRIGHTNESS);
 }
 
 // Void that updates the LED color according to the current error status
 void showError(errors error, bool fatal) {
+    // Create an array with the possible LED colors
     const CRGB values[6] = {CRGB::Green, CRGB::Yellow, CRGB::DarkBlue,
                             CRGB::Magenta, CRGB::Red, CRGB::Aqua};
+
     // Set the LED color, according to error enumeration
     leds[0] = values[error];
 
