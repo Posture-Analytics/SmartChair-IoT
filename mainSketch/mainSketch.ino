@@ -6,16 +6,25 @@
 // DEBUG Flag, prints data to Serial instead of sending to the database
 // #define DEBUG
 
+#include "Errors.h"
+#include "Network.h"
+#include "Buffer.h"
 #include "DataReader.h"
 #include "Database.h"
-#include "Network.h"
-#include "Errors.h"
-
 
 // Create a task to assign the data push to the database to Core 0
 TaskHandle_t sendToDatabaseTask;
 
+// Create an ExternalADCs object to read the data from the external ADCs
+ExternalADCs externalAdcs;
+
+// Create a buffer to store the data to be sent to the database
+SensorDataBuffer dataBuffer;
+
+// Create a DataReader object to read the data from the sensors
 DataReader dataReader;
+
+// Create a Database object to send the data to the database
 Database database;
 
 // Initialization void
@@ -26,8 +35,10 @@ void setup() {
     // Setup the RGB built-in LED to show the device's current status or errors
     setupLED();
 
-    // Setup the external ADCs
-    dataReader.setup();
+    // Setup the sensors
+    if(!dataReader.setup()){
+        showError(externalADCInitFailure, true);
+    }
 
     // Setup WiFi connection
     setupWiFi();
@@ -53,6 +64,8 @@ void setup() {
 
     // Register the boot on the database ("/bootLog")
     database.bootLog();
+
+    showError(none);
 }
 
 // Main loop, that keep running on Core 1
@@ -60,21 +73,19 @@ void loop() {
     // Disable the watchdog of Core 0, avoiding reboots caused by the working time of the sendToDatabase task
     disableCore0WDT();
 
-    dataReader.fillBuffer();
+    dataReader.fillBuffer(&dataBuffer);
 }
 
 // Task attached to core 0
 void sendToDatabase(void* pvParameters) {
-
+    // A loop that runs forever to keep sending data to the database
     while(true){
-      // If the buffer is empty, wait for the data collection task to fill it
-      if (!dataReader.isBufferEmpty()) {
-          database.sendData(dataReader);
-      }else{
-          vTaskDelay(10);
-          yield();
-      }
+        // If the buffer is empty, wait for the data collection task to fill it
+        if (!dataBuffer.isBufferEmpty()) {
+            database.sendData(&dataBuffer);
+        }else{
+            vTaskDelay(10);
+            yield();
+        }
     }
-    
-    Serial.println("OUTER LOOP");
 }
