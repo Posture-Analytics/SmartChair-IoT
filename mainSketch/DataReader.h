@@ -1,66 +1,44 @@
 #ifndef DataReader_H_
 #define DataReader_H_
 
-#include <FirebaseESP32.h>
+// #include <FirebaseESP32.h>
 #include "ExternalADCs.h"
+#include "Buffer.h"
 
-// time_t getCurrentTime();
-
-// Define a struct to organize the collected data
-struct sensorData {
-    const static int sensorCount = 12;
-
-    // 4 bytes
-    unsigned long long timestampMillis;
-    unsigned long sum = 0;
-
-    // 2 bytes each
-    int pressure[sensorCount];
-};
+// Sample Rate of the data collection, in hertz (Hz)
+const int SAMPLE_RATE = 2;
 
 class DataReader {
-    const static int bufferCapacity = 1024;
-
     // External ADCs that will be used to read the pressure sensors
-    ADCs adcs;
+    ExternalADCs externalAdcs;
+    // Define the amount of pressure sensors hooked up to the external ADCs
+    const int externalAdcPinsCount = 8;
 
-    // Sample Rate of the data collection, in hertz (Hz)
-    const int SAMPLE_RATE = 50;
     // Define the pins that will be used to read the pressure sensors through the internal ADC (ADC1)
-    const uint8_t pins[4] = {A2, A3, A4, A5};
+    const uint8_t internalAdcPins[4] = {A2, A3, A4, A5};    
+    // Define the amount of pressure sensors hooked up to the internal ADC (ADC1)
+    const int internalAdcPinsCount = sizeof(internalAdcPins) / sizeof(internalAdcPins[0]);
 
-    // Create variables to help with the timing of data collection
-    const int dataCollectInterval = 1000000 / SAMPLE_RATE;
+    // Set the interval between data collect, in microseconds (us)
+    const int dataCollectIntervalMicros = 1e6 / SAMPLE_RATE;
+    // Save the time of the last data collect, in microseconds (us)
     unsigned long dataPrevColletionMicros = 0;
+    // Save the current time, in microseconds (us)
     unsigned long currentMicros = 0;
 
-    // Create some variables to help with the data collection and sensor handling
-    const int sensorCount = 12;
-    const int pinCount = sizeof(pins) / sizeof(pins[0]);
+    // Pointer to the next sample to be written
+    sensorData* newSample;
 
-    // Create a circular buffer and some variables to help with its use, like pointers and capacity indicators
-    // Set the capactity of the buffer and create the buffer
-    sensorData buffer[bufferCapacity];
-
-    // Create a variable to help with the buffer's size (number of samples in the buffer)
-    int bufferSize = 0;
-    // Create some variables to help with the buffer's pointers
-    int writeIndex = 0;
-    int readIndex = 0;
-
-
+    // Update the current time variable
     void updateCurrentTime();
 
- public:
-    void setup();
+public:
 
-    void fillBuffer();
+    // Setup the sensors and the devices' pins
+    bool setup();
 
-    const sensorData* getSample();
-
-    bool isBufferEmpty() const;
-
-    void printBufferState() const;
+    // Collect data from the sensors and store it on the buffer
+    void fillBuffer(SensorDataBuffer* dataBuffer);
 };
 
 #endif  // DataReader_H_
