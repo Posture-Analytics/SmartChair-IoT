@@ -115,9 +115,6 @@ sensorData* SensorDataBuffer::addSample() {
     // Get the pointer to the next sample to be written
     sensorData* ptrSample = &buffer[writeIndex];
 
-    // Move the write index to the next sample
-    moveWriteIndexForward();
-
     // Return the pointer to the next sample to be written
     return ptrSample;
 }

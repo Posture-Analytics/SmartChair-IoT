@@ -25,7 +25,7 @@ class Database {
     FirebaseConfig config;
     
     // Set the base path in the database where the json will be pushed
-    String DATABASE_BASE_PATH = "/sensor_readings_NEW/";
+    String DATABASE_BASE_PATH = "/sensor_readings_NEW_STRUCTURE/";
 
     // Create a JSON object to hold and organize the data before be sended to database
     FirebaseJson jsonBuffer;

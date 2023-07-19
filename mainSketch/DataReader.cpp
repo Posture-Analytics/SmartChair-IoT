@@ -46,18 +46,22 @@ void DataReader::fillBuffer(SensorDataBuffer* dataBuffer) {
 
         // Fill the buffer with sensors data connected to the external ADC
         int externalAdcsChannelIndex = 0;
-        for (i; i < externalAdcPinsCount; i += 2) {
+        for (i; i < internalAdcPinsCount + externalAdcPinsCount; i += 2) {
             externalAdcs.read(externalAdcsChannelIndex);
 
             // Fill the buffer with the collected values
             newSample->pressureSensor[i] = externalAdcs.get(0);
             newSample->pressureSensor[i + 1] = externalAdcs.get(1);
 
+            // Go to next channel of the external ADCs
             externalAdcsChannelIndex++;
         }
 
         // Print a dot just to show that the data it's been collected
         Serial.println(".");
+
+        // Move the write index to the next sample
+        (*dataBuffer).moveWriteIndexForward();
 
         // Update the time variable that controls the collect interval
         dataPrevColletionMicros = currentMicros;
