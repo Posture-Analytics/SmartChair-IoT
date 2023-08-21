@@ -1,3 +1,11 @@
+/*
+    DataReader.h
+
+    * This module handle the sensors and the data collection from them.
+    * It setup the sensors and the constants related to them
+    * It also handle the routine to collect data from the sensors and store it on the buffer.
+*/
+
 #ifndef DataReader_H_
 #define DataReader_H_
 

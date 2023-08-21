@@ -1,3 +1,11 @@
+/*
+    ExternalADCs.h
+
+    * This module handle the external ADCs and the data collection through them.
+    * It setup the external ADCs and check the status of the initialization process.
+    * It also read the data from the external ADCs in parallel, according to the channel index, and store it on the externalAdcsValues array (as an internal buffer).
+*/
+
 #ifndef ExternalADCs_H_
 #define ExternalADCs_H_
 

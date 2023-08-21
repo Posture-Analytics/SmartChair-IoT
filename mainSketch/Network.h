@@ -1,3 +1,11 @@
+/*
+    Network.h
+
+    * This module handle the network connection of the device.
+    * It connects to the WiFi network and syncs the device's time with an NTP Server time.
+    * It also format the unix timestamp to a human readable format or to a timestamp in milliseconds.
+*/
+
 #ifndef Network_H_
 #define Network_H_
 

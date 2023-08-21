@@ -1,3 +1,12 @@
+/*
+    Buffer.h
+
+    * This module handle the buffer that stores the data collected from the sensors.
+    * The buffer consists of an array of sensorData structs and some indexes to keep track of the buffer state.
+    * It also provides functions to add and get samples from the buffer, handle buffer capacity and indexes.
+    * For debug purposes, it also provides functions to print the buffer state and dump its content.
+*/
+
 #ifndef Buffer_H_
 #define Buffer_H_
 

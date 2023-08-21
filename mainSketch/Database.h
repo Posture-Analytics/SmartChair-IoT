@@ -1,3 +1,12 @@
+/*
+    Database.h
+
+    * This module handle the database connection and provides functions to send data to the database.
+    * It uses the FirebaseESP32 library to connect and send data directly to the Firebase Realtime Database.
+    * It also provides a function to structure the collected data into JSON formatted batches to be sent to the database.
+    * It also log the device's boot, useful to analyze crashes, stability, reboots...
+*/
+
 #ifndef Database_H_
 #define Database_H_
 
