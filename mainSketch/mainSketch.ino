@@ -79,11 +79,11 @@ void loop() {
 // Task attached to core 0
 void sendToDatabase(void* pvParameters) {
     // A loop that runs forever to keep sending data to the database
-    while(true){
+    while (true) {
         // If the buffer is empty, wait for the data collection task to fill it
         if (!dataBuffer.isBufferEmpty()) {
             database.sendData(&dataBuffer);
-        }else{
+        } else {
             vTaskDelay(10);
             yield();
         }
