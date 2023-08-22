@@ -57,14 +57,7 @@ void DataReader::fillBuffer(SensorDataBuffer* dataBuffer) {
             externalAdcsChannelIndex++;
         }
 
-        // Print a dot just to show that the data it's been collected
-        Serial.println(".");
-
-        // Move the write index to the next sample
-        dataBuffer->moveWriteIndexForward();
-
         // Update the time variable that controls the collect interval
         dataPrevColletionMicros = currentMicros;
     }
 }
-

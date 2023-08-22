@@ -82,6 +82,7 @@ void SensorDataBuffer::getCurrentSampleDatePath() {
 // Check if the date has changed and update the sample date path if it did
 bool SensorDataBuffer::hasDateChanged() {
     time_t seconds = static_cast<time_t>(buffer[readIndex].timestampMillis / 1000);
+    // Compare the current timestamp with the timestamp of the next day
     bool result = seconds >= nextDay;
     if (result) {
         getCurrentSampleDatePath();
@@ -112,6 +113,8 @@ sensorData* SensorDataBuffer::addSample() {
 
     // Get the pointer to the next sample to be written
     sensorData* ptrSample = &buffer[writeIndex];
+    // Move the write index to the next sample
+    moveWriteIndexForward();
 
     // Return the pointer to the next sample to be written
     return ptrSample;
@@ -147,6 +150,7 @@ void SensorDataBuffer::printBufferState() const {
     Serial.print(bufferSize);
     Serial.print("/");
     Serial.println(BUFFER_CAPACITY);
+    Serial.print("; ");
 }
 
 // Print the indexes of the buffer

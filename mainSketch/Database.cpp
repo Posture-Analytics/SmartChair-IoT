@@ -82,7 +82,7 @@ void Database::appendDataToJSON(const sensorData* data) {
 }
 
 // Function that sends the JSON object to the database, update the node asynchronously
-bool Database::pushData(){
+bool Database::pushData() {
     #ifdef DEBUG
 
         // In debug mode, we only print the values instead of sending them to the database
@@ -95,7 +95,7 @@ bool Database::pushData(){
         // to be faster and to be able the send a larger amount of the data points per second
         if (Firebase.ready()) {
             // Send the data to database
-            if(Firebase.updateNodeSilentAsync(fbdo, fullDataPath, jsonBuffer)) {
+            if (Firebase.updateNodeSilentAsync(fbdo, fullDataPath, jsonBuffer)) {
                 // Update the LED indicator, showing that everything works fine
                 showError(none);
 
@@ -107,11 +107,16 @@ bool Database::pushData(){
                 return true;
             // If some error occur during this process, we show as a fatal database error and restart the device
             } else {
-                Serial.println(fbdo.errorReason().c_str());
+                Serial.print("Database error: ");
+                Serial.println(fbdo.errorReason());
+                Serial.println(fullDataPath);
+                Serial.println(jsonBuffer.serializedBufferLength());
                 showError(noDatabaseConnection);
 
                 return false;
             }
+        } else {
+            return false;
         }
 
     #endif
@@ -119,7 +124,7 @@ bool Database::pushData(){
 
 
 // Function that track the incoming data and fill the json buffer to be sent to the database
-void Database::sendData(SensorDataBuffer *dataBuffer) {
+void Database::sendData(SensorDataBuffer* dataBuffer) {
 
     // If we don't have a complete batch of data, we keep adding samples to the JSON buffer
     if (jsonSize < jsonBatchSize) {
@@ -168,6 +173,9 @@ void Database::sendData(SensorDataBuffer *dataBuffer) {
 
     // Print the buffer state
     dataBuffer->printBufferState();
+
+    // Print the size of the JSON buffer
+    Serial.print(jsonSize);
 
     // Print the indexes of the buffer
     dataBuffer->printBufferIndexes();

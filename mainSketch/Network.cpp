@@ -61,7 +61,7 @@ time_t getCurrentTime() {
     return now;
 }
 
-// Function that return the current timestamp in milliseconds since 01 January 1970
+// Function that returns the current timestamp in milliseconds since 01 January 1970
 unsigned long long getCurrentMillisTimestamp() {
     struct timeval tv;
 
