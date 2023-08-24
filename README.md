@@ -35,7 +35,7 @@ All the information about this open-source project can be found in this reposito
 
 ## Diagrams
 
-1. **Conceptual Diagram**: [Link to the conceptual diagram or embed the image]
+1. [Conceptual Diagram](<Diagrams/Conceptual Diagram/Conceptual Diagram.png>)
 2. **Pressure Sensor Array Distribution**: [Link to the pressure sensor array distribution or embed the image]
 3. **Circuit Diagram**: [Link to the circuit diagram or embed the image]
 4. **Circuit Schematic**: [Link to the circuit schematic or embed the image]
