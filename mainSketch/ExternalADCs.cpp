@@ -4,7 +4,7 @@
 
 // Set the list of channels that will be iterated during the data collection
 const ADS1115_MUX channels[4] = {ADS1115_COMP_3_GND, ADS1115_COMP_2_GND,
-                                        ADS1115_COMP_1_GND, ADS1115_COMP_0_GND};
+                                ADS1115_COMP_1_GND, ADS1115_COMP_0_GND};
 
 // Setup the external ADCs
 bool ExternalADCs::setup() {

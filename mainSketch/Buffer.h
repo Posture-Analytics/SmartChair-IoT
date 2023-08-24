@@ -22,7 +22,7 @@ const int PRESSURE_SENSOR_COUNT = 12;
 
 // Define a struct to organize the collected data
 struct sensorData {
-    // 4 bytes
+    // 8 bytes
     unsigned long long timestampMillis = 0;
 
     // 2 bytes each
@@ -37,6 +37,9 @@ public:
     // Create a buffer based on the sensorData struct
     sensorData buffer[BUFFER_CAPACITY];
 
+    // Stores the timestamp of the following day to check if the date has changed
+    time_t nextDay;
+
     // Hold the number of samples in the buffer
     int bufferSize = 0;
 
@@ -46,7 +49,7 @@ public:
     int writeIndex = 0;
 
     // Hold the current date path
-    String sampleDate;
+    char sampleDate[12];
 
     // Check if the buffer is empty
     bool isBufferEmpty() const;
@@ -82,11 +85,11 @@ public:
     void getCurrentSampleDatePath();
 
     // Check if the date has changed
-    bool hasDateChanged(String currentDatePath);
+    bool hasDateChanged();
 
     // Check if the content of the sample is null
     bool isSampleNull(const sensorData* sample) const;
-    
+
     // Return the pointer to the next sample to be written
     sensorData* addSample();
 

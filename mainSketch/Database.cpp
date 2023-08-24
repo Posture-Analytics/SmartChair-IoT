@@ -31,17 +31,14 @@ void Database::setup(time_t timestampUnix) {
     Firebase.reconnectWiFi(true);
 
     // Convert the timestamp to a struct tm
-    timeinfo = localtime(&timestampUnix);
+    struct tm* timeInfo = localtime(&timestampUnix);
     // Create a buffer to store the date string
     char dateBuffer[12];
     // Convert the struct tm to a formatted string like "YYYY-MM-DD/\0"
-    strftime(dateBuffer, 12, "%F/", timeinfo);
-
-    // Save the current date path on a string to be compared when the date changes
-    datePath = dateBuffer;
+    strftime(dateBuffer, 12, "%F/", timeInfo);
 
     // Sets the upload to the node named with the current date
-    fullDataPath += DATABASE_BASE_PATH + datePath;
+    fullDataPath = DATABASE_BASE_PATH + dateBuffer;
 }
 
 // Function that logs the device's boot. Useful to analyze crashes, stability, reboots...
@@ -71,44 +68,34 @@ void Database::bootLog() {
 
 // Funcion that append sensor data into the JSON object
 void Database::appendDataToJSON(const sensorData* data) {
-    // The buffers are bigger to avoid overflow and to use a multiple of 2
-    /*
-    *  Set the node where the data will be stored as a concatenation of the date, UNIX/Epoch Time
-    *  and the device's millis timestamp, getting the index where the collect data will be stored.
-    */
-
-    // Set the key of the payload as a concatenation of the date, UNIX/Epoch Time
-    snprintf(key, 32, "%llu/", data->timestampMillis);
-
-    // Add the pressure sensors data to the payload
-    payload = "P";
+    payload.clear();
+    // Add the pressure sensors' data to the payload
     for (int i = 0; i < PRESSURE_SENSOR_COUNT; i++) {
-        payload += data->pressureSensor[i];
-        payload += ";";
+        payload.add(data->pressureSensor[i]);
     }
 
-    // Add the payload to the JSON buffer
-    jsonBuffer.add(key, payload);
+    // Set the node where the data will be stored as a the date, with a milliseconds subkey.
+    jsonBuffer.add(data->timestampMillis, payload);
 
     // Increment the jsonSize to keep control of how many data samples are been stored in the JSON buffer
     jsonSize++;
 }
 
 // Function that sends the JSON object to the database, update the node asynchronously
-bool Database::pushData(){
+bool Database::pushData() {
     #ifdef DEBUG
 
         // In debug mode, we only print the values instead of sending them to the database
         json.toString(Serial, true);
         return true;
-    
+
     #else
 
         // If the Firebase Database is ready to receive the data, we send it asynchronously
         // to be faster and to be able the send a larger amount of the data points per second
         if (Firebase.ready()) {
             // Send the data to database
-            if(Firebase.updateNodeSilentAsync(fbdo, fullDataPath, jsonBuffer)) {
+            if (Firebase.updateNodeSilentAsync(fbdo, fullDataPath, jsonBuffer)) {
                 // Update the LED indicator, showing that everything works fine
                 showError(none);
 
@@ -120,11 +107,16 @@ bool Database::pushData(){
                 return true;
             // If some error occur during this process, we show as a fatal database error and restart the device
             } else {
-                Serial.println(fbdo.errorReason().c_str());
+                Serial.print("Database error: ");
+                Serial.println(fbdo.errorReason());
+                Serial.println(fullDataPath);
+                Serial.println(jsonBuffer.serializedBufferLength());
                 showError(noDatabaseConnection);
 
                 return false;
             }
+        } else {
+            return false;
         }
 
     #endif
@@ -132,34 +124,29 @@ bool Database::pushData(){
 
 
 // Function that track the incoming data and fill the json buffer to be sent to the database
-void Database::sendData(SensorDataBuffer *dataBuffer) {
-        
+void Database::sendData(SensorDataBuffer* dataBuffer) {
+
     // If we don't have a complete batch of data, we keep adding samples to the JSON buffer
     if (jsonSize < jsonBatchSize) {
 
         // Check if the date changed
-        if ((*dataBuffer).hasDateChanged(datePath)) {
+        if (dataBuffer->hasDateChanged()) {
             // We force push the data to the database
-            if(pushData()) {
-                // If the push data succeed, we get the current date path
-                (*dataBuffer).getCurrentSampleDatePath();
-
-                // Update the full data path
-                datePath = (*dataBuffer).sampleDate;
-                fullDataPath = DATABASE_BASE_PATH + datePath;
+            if (pushData()) {
+                // If the push data succeed, we update the current path with the new date
+                fullDataPath = DATABASE_BASE_PATH + dataBuffer->sampleDate;
             } else {
                 // If the push data failed, we show an error
                 showError(noDatabaseConnection);
-
                 return;
             }
         }
 
         // Get one sample from the sensor data buffer
-        const sensorData* sample =(*dataBuffer).getSample();
+        const sensorData* sample = dataBuffer->getSample();
 
         // Check if the current sample is valid
-        bool current_is_valid = !(*dataBuffer).isSampleNull(sample);
+        bool current_is_valid = dataBuffer->isSampleNull(sample);
 
         // If the current or the last sample is valid, we send the data to the database
         // If the sample being processed is non-zero, it is always sent to the database
@@ -185,10 +172,13 @@ void Database::sendData(SensorDataBuffer *dataBuffer) {
     }
 
     // Print the buffer state
-    (*dataBuffer).printBufferState();
+    dataBuffer->printBufferState();
+
+    // Print the size of the JSON buffer
+    Serial.print(jsonSize);
 
     // Print the indexes of the buffer
-    (*dataBuffer).printBufferIndexes();
+    dataBuffer->printBufferIndexes();
 
     // If we just send an amount of data to the database, give an interval to Core 0 to work on maintence activities, avoiding crash problems
     vTaskDelay(10);

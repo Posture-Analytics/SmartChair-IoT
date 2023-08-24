@@ -31,26 +31,26 @@ void syncWithNTPTime() {
 
 // Prints the time obtained from the NTP server during the initialization
 void printLocalTime() {
-    struct tm timeinfo;
+    struct tm timeInfo;
 
     // If the local time is not available, we have a fatal error
-    if (!getLocalTime(&timeinfo)) {
+    if (!getLocalTime(&timeInfo)) {
         showError(noNTPdata, true);
         Serial.println("Failed to obtain time");
         return;
     }
 
-    Serial.println(&timeinfo, "%A, %d/%m/%Y %H:%M:%S");
+    Serial.println(&timeInfo, "%A, %d/%m/%Y %H:%M:%S");
     Serial.println();
 }
 
 // Function that gets current epoch time
 time_t getCurrentTime() {
     time_t now;
-    struct tm timeinfo;
+    struct tm timeInfo;
 
     // If the local time is not available, we have a fatal error
-    if (!getLocalTime(&timeinfo)) {
+    if (!getLocalTime(&timeInfo)) {
         showError(noNTPdata, true);
         Serial.println("Failed to obtain Unix time");
         return (0);
@@ -61,7 +61,7 @@ time_t getCurrentTime() {
     return now;
 }
 
-// Function that return the current timestamp in milliseconds since 01 January 1970
+// Function that returns the current timestamp in milliseconds since 01 January 1970
 unsigned long long getCurrentMillisTimestamp() {
     struct timeval tv;
 

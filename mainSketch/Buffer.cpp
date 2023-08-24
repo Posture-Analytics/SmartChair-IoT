@@ -59,42 +59,41 @@ void SensorDataBuffer::moveWriteIndexBackward() {
 // Get the current sample date path
 void SensorDataBuffer::getCurrentSampleDatePath() {
     // Get the next sample from the buffer
-    const sensorData* currentSample = &buffer[readIndex];
+    time_t sampleTimestampSec = static_cast<time_t>(buffer[readIndex].timestampMillis / 1000);
 
-    // Convert the timestamp (in milliseconds) to a time_t object (in seconds)
-    time_t sampleTimestampSec = (time_t)((currentSample->timestampMillis)/1e3);
-
+    struct tm timeInfo;
     // Get the struct tm from the time_t object
-    struct tm* timeinfo = localtime(&sampleTimestampSec);
-    // Create a buffer to store the date string
-    char sampleDateBuffer[12];
+    localtime_r(&sampleTimestampSec, &timeInfo);
     // Convert the struct tm to a formatted string like "YYYY-MM-DD/\0"
-    strftime(sampleDateBuffer, 12, "%F/", timeinfo);
+    strftime(sampleDate, 12, "%F/", &timeInfo);
 
-    // Convert the char array to a String
-    sampleDate = String(sampleDateBuffer);
+    // Get the time info of the next day
+    sampleTimestampSec += 24 * 60 * 60;
+    localtime_r(&sampleTimestampSec, &timeInfo);
+    // Set the time info to the start of the day
+    timeInfo.tm_hour = 0;
+    timeInfo.tm_min = 0;
+    timeInfo.tm_sec = 0;
+
+    // Convert back to time_t and save it
+    nextDay = mktime(&timeInfo);
 }
 
-// Check if the date has changed
-bool SensorDataBuffer::hasDateChanged(String currentDatePath) {
-
-    // Update the sampleDateBuffer array with the date of the current sample
-    getCurrentSampleDatePath();
-
-    // Compare the current date path with the date of the sample
-    if (currentDatePath != sampleDate) {
-        // Return true if the date has changed
-        return true;
-    } else {
-        // Return false if the date has not changed
-        return false;
+// Check if the date has changed and update the sample date path if it did
+bool SensorDataBuffer::hasDateChanged() {
+    time_t seconds = static_cast<time_t>(buffer[readIndex].timestampMillis / 1000);
+    // Compare the current timestamp with the timestamp of the next day
+    bool result = seconds >= nextDay;
+    if (result) {
+        getCurrentSampleDatePath();
     }
+    return result;
 }
 
 // Check if the content of the sample is null
 bool SensorDataBuffer::isSampleNull(const sensorData* sample) const {
     // Check if we have some non null data in the sample struct
-    for (int i=0; i<PRESSURE_SENSOR_COUNT; i++) {
+    for (int i = 0; i < PRESSURE_SENSOR_COUNT; i++) {
         if (sample->pressureSensor[i] != 0) {
             return false;
         }
@@ -114,6 +113,8 @@ sensorData* SensorDataBuffer::addSample() {
 
     // Get the pointer to the next sample to be written
     sensorData* ptrSample = &buffer[writeIndex];
+    // Move the write index to the next sample
+    moveWriteIndexForward();
 
     // Return the pointer to the next sample to be written
     return ptrSample;
@@ -149,6 +150,7 @@ void SensorDataBuffer::printBufferState() const {
     Serial.print(bufferSize);
     Serial.print("/");
     Serial.println(BUFFER_CAPACITY);
+    Serial.print("; ");
 }
 
 // Print the indexes of the buffer
@@ -162,7 +164,7 @@ void SensorDataBuffer::printBufferIndexes() const {
 // Dump the buffer content or a part of it
 void SensorDataBuffer::dumpBufferContent(int start, int end) const {
     // Iterate over the buffer content on the desired range
-    for (int i=start; i<end; i++) {
+    for (int i = start; i < end; i++) {
         // Get the current sample
         const sensorData* sample = &buffer[i];
 
@@ -171,7 +173,7 @@ void SensorDataBuffer::dumpBufferContent(int start, int end) const {
         Serial.print(" ");
 
         // Print the sample pressure sensor values
-        for (int j=0; j<PRESSURE_SENSOR_COUNT; j++) {
+        for (int j = 0; j < PRESSURE_SENSOR_COUNT; j++) {
             Serial.print(sample->pressureSensor[j]);
             Serial.print(" ");
         }

@@ -31,9 +31,9 @@ void DataReader::fillBuffer(SensorDataBuffer* dataBuffer) {
 
     // If the time elapsed since the last data collect is greater than the interval between data collect (or if it's the first collect), collect the data
     if (currentMicros - dataPrevColletionMicros > dataCollectIntervalMicros || dataPrevColletionMicros == 0) {
-        
+
         // Get the pointer to the sample to be written
-        newSample = (*dataBuffer).addSample();
+        newSample = dataBuffer->addSample();
 
         // Fill the buffer with current timestamp (in milliseconds)
         newSample->timestampMillis = getCurrentMillisTimestamp();
@@ -57,14 +57,7 @@ void DataReader::fillBuffer(SensorDataBuffer* dataBuffer) {
             externalAdcsChannelIndex++;
         }
 
-        // Print a dot just to show that the data it's been collected
-        Serial.println(".");
-
-        // Move the write index to the next sample
-        (*dataBuffer).moveWriteIndexForward();
-
         // Update the time variable that controls the collect interval
         dataPrevColletionMicros = currentMicros;
     }
 }
-

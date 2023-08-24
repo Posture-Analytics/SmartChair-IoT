@@ -23,7 +23,7 @@ class DataReader {
     const int externalAdcPinsCount = 8;
 
     // Define the pins that will be used to read the pressure sensors through the internal ADC (ADC1)
-    const uint8_t internalAdcPins[4] = {A2, A3, A4, A5};    
+    const uint8_t internalAdcPins[4] = {A2, A3, A4, A5};
     // Define the amount of pressure sensors hooked up to the internal ADC (ADC1)
     const int internalAdcPinsCount = sizeof(internalAdcPins) / sizeof(internalAdcPins[0]);
 
