@@ -28,7 +28,6 @@ All the information about this open-source project can be found in this reposito
     - `ADS1115_WE`
     - `FastLED`
     - `Firebase ESP32 Client`
-    - `WiFiManager`
 5. **Open the sketch and configure the code**: Open the `mainSketch.ino` file in the Arduino IDE 2.0 and configure the code (see [Configuration & Variables](#configuration--variables)). You must configure the WiFi network and the Firebase Realtime Database keys, URLs and credentials. Otherwise, the code will not work (either because it will not be able to connect to the WiFi network or because it will not be able to connect to the Firebase Realtime Database)
 6. **Connect the microcontroller to the computer**: Connect the microcontroller to the computer using a USB cable. Also select the correct COM port in the Arduino IDE 2.0 (`Tools > Port`) and the correct board (`Tools > Board > esp32 Arduino > SparkFun ESP32 Thing Plus C`).
 7. **Upload the code to the microcontroller**: Open the `mainSketch.ino` file in the Arduino IDE 2.0 and upload the code to the microcontroller (`Sketch > Upload` / `Ctrl+U`). Wait until the code is uploaded and the microcontroller is ready to use.
