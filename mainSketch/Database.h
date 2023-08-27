@@ -27,6 +27,9 @@
 #define DATABASE_USER_EMAIL "admin@admin.com";
 #define DATABASE_USER_PASSWORD "adminadmin";
 
+// Send Rate of the data sending, in hertz (Hz)
+const int SEND_RATE = 2;
+
 class Database {
     static const int jsonBatchSize = 10;
 
@@ -49,6 +52,16 @@ class Database {
 
     // Stores whether or not the last sample from the sensors was valid (non-zero)
     bool last_was_valid;
+
+    // Set the interval between data send, in microseconds (us)
+    const int dataSendIntervalMicros = 1e6 / SEND_RATE;
+    // Save the time of the last data send, in microseconds (us)
+    unsigned long dataPrevSendingMicros = 0;
+    // Save the current time, in microseconds (us)
+    unsigned long currentMicros = 0;
+
+    // Update the current time variable
+    void updateCurrentTime();
 
  public:
     Database();

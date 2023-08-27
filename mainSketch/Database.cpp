@@ -11,6 +11,12 @@
 
 Database::Database() : last_was_valid(true) {}
 
+// Update the current time variable
+void Database::updateCurrentTime() {
+    // Set the variable 'currentMicros' with the current time in microseconds (us)
+    currentMicros = micros();
+}
+
 // Function that setup the database connection
 void Database::setup(time_t timestampUnix) {
     // Assign the api key (required) of the database
@@ -125,50 +131,26 @@ bool Database::pushData() {
 
 // Function that track the incoming data and fill the json buffer to be sent to the database
 void Database::sendData(SensorDataBuffer* dataBuffer) {
+    // Save the time when the device start to send the data from the sensors, to keep control of the intervals of data sending
+    updateCurrentTime();
 
-    // If we don't have a complete batch of data, we keep adding samples to the JSON buffer
-    if (jsonSize < jsonBatchSize) {
+    // If the time elapsed since the last data sending is greater than the interval between data sending (or if it's the first sending), send the data
+    if (currentMicros - dataPrevSendingMicros > dataSendIntervalMicros || dataPrevSendingMicros == 0) {
+        
+        // Send the data to the database
+        pushData();
 
         // Check if the date changed
         if (dataBuffer->hasDateChanged()) {
-            // We force push the data to the database
-            if (pushData()) {
-                // If the push data succeed, we update the current path with the new date
-                fullDataPath = DATABASE_BASE_PATH + dataBuffer->sampleDate;
-            } else {
-                // If the push data failed, we show an error
-                showError(noDatabaseConnection);
-                return;
-            }
+            // If the push data succeed, we update the current path with the new date
+            fullDataPath = DATABASE_BASE_PATH + dataBuffer->sampleDate;
         }
 
-        // Get one sample from the sensor data buffer
-        const sensorData* sample = dataBuffer->getSample();
-
-        // Check if the current sample is valid
-        bool current_is_valid = dataBuffer->isSampleNull(sample);
-
-        // If the current or the last sample is valid, we send the data to the database
-        // If the sample being processed is non-zero, it is always sent to the database
-        // Else, it is only sent if the last sample was valid, so that we don't send
-        // too many null values to the database in succession
-        if (current_is_valid || last_was_valid) {
-
-            // Concatenate the sample in a JSON buffer
-            appendDataToJSON(sample);
-
-            // If the JSON buffer is full, send the data to the database
-            if (jsonSize >= jsonBatchSize) {
-                pushData();
-            }
-        }
-
-        // Update the last_was_valid variable
-        last_was_valid = current_is_valid;
-
-    // Otherwise, we push the data to the database
-    } else {
-        pushData();
+        // Update the time variable that controls the send interval
+        dataPrevSendingMicros = currentMicros;
+    }
+    else {
+        return;
     }
 
     // Print the buffer state
