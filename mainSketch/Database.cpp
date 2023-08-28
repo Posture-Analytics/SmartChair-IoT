@@ -134,30 +134,65 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
     // Save the time when the device start to send the data from the sensors, to keep control of the intervals of data sending
     updateCurrentTime();
 
-    // If the time elapsed since the last data sending is greater than the interval between data sending (or if it's the first sending), send the data
-    if (currentMicros - dataPrevSendingMicros > dataSendIntervalMicros || dataPrevSendingMicros == 0) {
-        
+    // If the time elapsed since the last data sending is greater than the interval between data sending, or if the JSON buffer is full, we send the data to the database
+    if ((jsonSize > 0 && currentMicros - dataPrevSendingMicros > dataSendIntervalMicros) || jsonSize >= jsonBatchSize) {
+
         // Send the data to the database
         pushData();
-
-        // Check if the date changed
-        if (dataBuffer->hasDateChanged()) {
-            // If the push data succeed, we update the current path with the new date
-            fullDataPath = DATABASE_BASE_PATH + dataBuffer->sampleDate;
-        }
 
         // Update the time variable that controls the send interval
         dataPrevSendingMicros = currentMicros;
     }
+
+    // Otherwise, we want to fill the JSON buffer with the data from the main buffer
     else {
-        return;
+
+        // Check if the date changed. If so, we send the last package of the day to the database
+        if (dataBuffer->hasDateChanged()) {
+            // Send the last package of that day to the database
+            if(pushData()){
+                // If the push data succeed, we update the current path with the new date
+                fullDataPath = DATABASE_BASE_PATH + dataBuffer->sampleDate;
+
+                // Update the time variable that controls the send interval
+                dataPrevSendingMicros = currentMicros;
+            }
+
+            else{
+                // If the push data failed, we show an error
+                showError(noDatabaseConnection);
+                return;
+            }
+        }
+
+        // Get one sample from the sensor data buffer
+        const sensorData* sample = dataBuffer->getSample();
+
+        // Check if the current sample is valid
+        bool current_is_valid = dataBuffer->isSampleNull(sample);
+        // bool current_is_valid = true; // DEBUG
+
+        // If the current or the last sample is valid, we send the data to the database
+        // If the sample being processed is non-zero, it is always sent to the database
+        // Else, it is only sent if the last sample was valid, so that we don't send
+        // too many null values to the database in succession
+        if (current_is_valid || last_was_valid) {
+            // Concatenate the sample in a JSON buffer
+            appendDataToJSON(sample);
+        }
+
+        // Update the last_was_valid variable
+        last_was_valid = current_is_valid;
     }
 
     // Print the buffer state
     dataBuffer->printBufferState();
 
     // Print the size of the JSON buffer
+    Serial.print("JSON: ");
     Serial.print(jsonSize);
+    Serial.print("/");
+    Serial.println(jsonBatchSize);
 
     // Print the indexes of the buffer
     dataBuffer->printBufferIndexes();
