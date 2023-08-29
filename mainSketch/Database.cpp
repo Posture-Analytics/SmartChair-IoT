@@ -169,7 +169,7 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
         const sensorData* sample = dataBuffer->getSample();
 
         // Check if the current sample is valid
-        bool current_is_valid = dataBuffer->isSampleNull(sample);
+        bool current_is_valid = !dataBuffer->isSampleNull(sample);
         // bool current_is_valid = true; // DEBUG
 
         // If the current or the last sample is valid, we send the data to the database
