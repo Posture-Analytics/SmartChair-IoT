@@ -14,38 +14,19 @@
 #include <Adafruit_MCP3008.h>
 
 #define CHANNEL_COUNT 8
-//#define ADC_COUNT 3
 
-// The class is defined as a template to allow for any amount of ADCs to be wrapped by the same object.
-template<int ADC_COUNT>
 class MCP3008Wrapper {
 
-    Adafruit_MCP3008 converters[ADC_COUNT];
+    int convCount;
+    Adafruit_MCP3008* converters;
 
 public:
 
-    MCP3008Wrapper(int CSPins[ADC_COUNT]);
+    MCP3008Wrapper(int* CSPins, int CSPCount);
+    ~MCP3008Wrapper();
 
     int read(int chip, int channel);
+    void read(int chip, int (&readings)[CHANNEL_COUNT]);
 };
-
-
-// -#- The definitions of the methods are in the header file due to template limitations -#-
-// A separated header file - cpp file configuration can be obtained by defining ADC_COUNT as a macro, removing the template syntax and moving the definitions below to a MCP3008Wrapper.cpp file.
-// We assume all ADCs have 8 channels, but this number could also be templated into the class.
-
-template<int ADC_COUNT>
-MCP3008Wrapper<ADC_COUNT>::MCP3008Wrapper(int CSPins[ADC_COUNT]) {
-
-    for (int i = 0; i < ADC_COUNT; i++) {
-        //Assing each MCP3008 object to a CS pin.
-        converters[i].begin(CSPins[i]);
-    }
-}
-
-template<int ADC_COUNT>
-int MCP3008Wrapper<ADC_COUNT>::read(int chip, int channel) {
-    return converters[chip].readADC(channel);
-}
 
 #endif
