@@ -1,6 +1,6 @@
 #include "MCP3008Wrapper.h"
 
-int CSPins[] = {15};
+int CSPins[] = {15, 27};
 int CSPCount = sizeof(CSPins)/sizeof(*CSPins);
 
 MCP3008Wrapper adcs(CSPins, CSPCount);
