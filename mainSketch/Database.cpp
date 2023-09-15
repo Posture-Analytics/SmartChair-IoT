@@ -12,7 +12,7 @@
 Database::Database() : last_was_valid(true) {}
 
 void Database::updateCurrentTime() {
-    // Set the variable 'currentMicros' with the current time in microseconds (us)
+    // Set the variable `currentMicros` with the current time in microseconds (us)
     currentMicros = micros();
 }
 
@@ -28,7 +28,7 @@ void Database::setup(time_t timestampUnix) {
     auth.user.password = DATABASE_USER_PASSWORD;
 
     // Assign the callback function for the long running token generation task
-    config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
+    config.token_status_callback = tokenStatusCallback;  // see addons/TokenHelper.h
 
     // Authenticate and initialize the communication with the Firebase database
     Firebase.begin(&config, &auth);
@@ -131,7 +131,6 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
         dataBuffer->computeNextDaySeconds();
         // Update the current path with the new date
         fullDataPath = DATABASE_BASE_PATH + sampleDate;
-        return;
     }
 
     // If the time elapsed since the last data sending is greater than the interval between

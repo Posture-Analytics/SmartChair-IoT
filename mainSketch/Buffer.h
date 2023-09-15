@@ -12,7 +12,7 @@
 #ifndef Buffer_H_
 #define Buffer_H_
 
-#include "time.h"
+#include <time.h>
 
 #include <Arduino.h>
 
@@ -85,7 +85,7 @@ public:
     void moveWriteIndexBackward();
 
     // Get the timestamp of the next sample to be read from the buffer
-    time_t getCurrentSampleMillis() const;
+    time_t getCurrentSampleSeconds() const;
 
     // Get the current sample date. Should receive an array of at least 11 chars
     void computeCurrentSampleDate(char* sampleDate);
