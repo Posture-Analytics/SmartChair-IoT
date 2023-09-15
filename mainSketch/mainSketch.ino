@@ -70,7 +70,8 @@ void setup() {
 
 // Main loop, that keep running on Core 1
 void loop() {
-    // Disable the watchdog of Core 0, avoiding reboots caused by the working time of the sendToDatabase task
+    // Disable the watchdog of Core 0, avoiding reboots caused by
+    // the working time of the sendToDatabase task
     disableCore0WDT();
 
     dataReader.fillBuffer(&dataBuffer);

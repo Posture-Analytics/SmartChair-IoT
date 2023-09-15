@@ -3,7 +3,6 @@
 #include "Network.h"
 #include "Errors.h"
 
-// Setup the WiFi connection
 void setupWiFi() {
     // Connect to the WiFi network
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -21,7 +20,6 @@ void setupWiFi() {
     Serial.println(WiFi.localIP());
 }
 
-// Sync the device's time with an NTP Server time
 void syncWithNTPTime() {
     // Set the time obtained from the NTP Server
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
@@ -29,7 +27,6 @@ void syncWithNTPTime() {
     printLocalTime();
 }
 
-// Prints the time obtained from the NTP server during the initialization
 void printLocalTime() {
     struct tm timeInfo;
 
@@ -44,7 +41,6 @@ void printLocalTime() {
     Serial.println();
 }
 
-// Function that gets current epoch time
 time_t getCurrentTime() {
     time_t now;
     struct tm timeInfo;

@@ -1,9 +1,10 @@
 /*
     ExternalADCs.h
 
-    * This module handle the external ADCs and the data collection through them.
-    * It setup the external ADCs and check the status of the initialization process.
-    * It also read the data from the external ADCs in parallel, according to the channel index, and store it on the externalAdcsValues array (as an internal buffer).
+    * This module handles the external ADCs and the data collection through them.
+    * It setups the external ADCs and checks the status of the initialization process.
+    * It also reads the data from the external ADCs in parallel, according to the channel
+    index, and stores it in the externalAdcsValues array (as an internal buffer).
 */
 
 #ifndef ExternalADCs_H_
@@ -24,7 +25,7 @@
 #define CONVERSION_RATE ADS1115_860_SPS
 
 class ExternalADCs {
-  
+
     // Instantiate 2 ADS1115_WE objects, one for each external ADC
     ADS1115_WE adcs[2];
 

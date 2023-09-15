@@ -1,9 +1,10 @@
 /*
   Errors.h
 
-  * This module handle the errors that may occur during the execution of the sketch.
+  * This module handles the errors that may occur during the execution of the sketch.
   * In case of an error, the RGB built-in LED will change its color to indicate the error type.
-  * If the error is fatal, the device will be restarted in 3 seconds, in order to try to recover from the error.
+  * If the error is fatal, the device will be restarted in 3 seconds, in order to try to
+  recover from the error.
 */
 
 #ifndef Errors_H_

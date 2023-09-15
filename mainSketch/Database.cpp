@@ -11,13 +11,11 @@
 
 Database::Database() : last_was_valid(true) {}
 
-// Update the current time variable
 void Database::updateCurrentTime() {
     // Set the variable 'currentMicros' with the current time in microseconds (us)
     currentMicros = micros();
 }
 
-// Function that setup the database connection
 void Database::setup(time_t timestampUnix) {
     // Assign the api key (required) of the database
     config.api_key = DATABASE_API_KEY;
@@ -35,32 +33,23 @@ void Database::setup(time_t timestampUnix) {
     // Authenticate and initialize the communication with the Firebase database
     Firebase.begin(&config, &auth);
     Firebase.reconnectWiFi(true);
-
-    // Convert the timestamp to a struct tm
-    struct tm* timeInfo = localtime(&timestampUnix);
-    // Create a buffer to store the date string
-    char dateBuffer[12];
-    // Convert the struct tm to a formatted string like "YYYY-MM-DD/\0"
-    strftime(dateBuffer, 12, "%F/", timeInfo);
-
-    // Sets the upload to the node named with the current date
-    fullDataPath = DATABASE_BASE_PATH + dateBuffer;
 }
 
-// Function that logs the device's boot. Useful to analyze crashes, stability, reboots...
 void Database::bootLog() {
-    // If the Firebase Database is ready to receive the data, we record the timestamp of the device's boot
+    // If the database is ready to receive the data, we record the timestamp of the device's boot
     if (Firebase.ready()) {
         // Record the current timestamp string to the database
         if (Firebase.pushInt(fbdo, "/bootLog/", getCurrentMillisTimestamp())) {
             Serial.println("Inicialização registrada com sucesso!");
-        // If some error occur during this record, we show as a fatal database error and restart the device
+        // If an error occurs during this process, we show it as a fatal
+        // database error and restart the device
         } else {
             Serial.println("Ocorreu um erro ao registrar a inicialização:");
             Serial.println(fbdo.errorReason().c_str());
             showError(noDatabaseConnection, true);
         }
-    // If the Firebase Database is not ready, we try to reconnect to the network and to the database
+    // If the Firebase Database is not ready, we test the connection to
+    // the network and to the database and display it on the LED indicator
     } else {
         if (WiFi.status() != WL_CONNECTED) {
             showError(noInternet, true);
@@ -72,8 +61,8 @@ void Database::bootLog() {
     }
 }
 
-// Funcion that append sensor data into the JSON object
 void Database::appendDataToJSON(const sensorData* data) {
+    // Clears the previous data stored in the payload array
     payload.clear();
     // Add the pressure sensors' data to the payload
     for (int i = 0; i < PRESSURE_SENSOR_COUNT; i++) {
@@ -87,7 +76,6 @@ void Database::appendDataToJSON(const sensorData* data) {
     jsonSize++;
 }
 
-// Function that sends the JSON object to the database, update the node asynchronously
 bool Database::pushData() {
     #ifdef DEBUG
 
@@ -111,7 +99,7 @@ bool Database::pushData() {
 
                 // If the data was sent successfully, we return true
                 return true;
-            // If some error occur during this process, we show as a fatal database error and restart the device
+            // If some error occurs during this process, we show as a fatal database error and restart the device
             } else {
                 Serial.print("Database error: ");
                 Serial.println(fbdo.errorReason());
@@ -128,16 +116,28 @@ bool Database::pushData() {
     #endif
 }
 
-
-// Function that track the incoming data and fill the json buffer to be sent to the database
 void Database::sendData(SensorDataBuffer* dataBuffer) {
-    // Save the time when the device start to send the data from the sensors, to keep control of the intervals of data sending
+    // Save the time when the device start to send the data from the sensors,
+    // to keep control of the intervals between data uploads
     updateCurrentTime();
 
-    // If the time elapsed since the last data sending is greater than the interval between data sending, or if the JSON buffer is full, we send the data to the database
-    if ((jsonSize > 0 && currentMicros - dataPrevSendingMicros > dataSendIntervalMicros) || jsonSize >= jsonBatchSize) {
+    if (dataBuffer->hasDateChanged()) {
+        // Update the path of the database node that will receive the data
+        dataBuffer->computeCurrentSampleDate(sampleDate);
+        // Add a slash to the end of the date string to make the path valid
+        sampleDate[10] = '/';
+        sampleDate[11] = '\0';
+        // Get the seconds that represent the following day, used to check if the date changed
+        dataBuffer->computeNextDaySeconds();
+        // Update the current path with the new date
+        fullDataPath = DATABASE_BASE_PATH + sampleDate;
+        return;
+    }
 
-        // Send the data to the database
+    // If the time elapsed since the last data sending is greater than the interval between
+    // the data uploads, or if the JSON buffer is full, we send the data to the database
+    if ((jsonSize > 0 && currentMicros - dataPrevSendingMicros > dataSendIntervalMicros)
+            || jsonSize >= jsonBatchSize) {
         pushData();
 
         // Update the time variable that controls the send interval
@@ -147,24 +147,6 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
     // Otherwise, we want to fill the JSON buffer with the data from the main buffer
     else {
 
-        // Check if the date changed. If so, we send the last package of the day to the database
-        if (dataBuffer->hasDateChanged()) {
-            // Send the last package of that day to the database
-            if(pushData()){
-                // If the push data succeed, we update the current path with the new date
-                fullDataPath = DATABASE_BASE_PATH + dataBuffer->sampleDate;
-
-                // Update the time variable that controls the send interval
-                dataPrevSendingMicros = currentMicros;
-            }
-
-            else{
-                // If the push data failed, we show an error
-                showError(noDatabaseConnection);
-                return;
-            }
-        }
-
         // Get one sample from the sensor data buffer
         const sensorData* sample = dataBuffer->getSample();
 
@@ -172,20 +154,20 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
         bool current_is_valid = !dataBuffer->isSampleNull(sample);
         // bool current_is_valid = true; // DEBUG
 
-        // If the current or the last sample is valid, we send the data to the database
-        // If the sample being processed is non-zero, it is always sent to the database
-        // Else, it is only sent if the last sample was valid, so that we don't send
-        // too many null values to the database in succession
+        /**
+         * If the current or the last sample is valid, we send the data to the database.
+         * If the sample being processed is non-zero, it is always sent to the database.
+         * Else, it is only sent if the last sample was valid, so that we don't send
+         * too many null values to the database in succession.
+         */
         if (current_is_valid || last_was_valid) {
             // Concatenate the sample in a JSON buffer
             appendDataToJSON(sample);
         }
 
-        // Update the last_was_valid variable
         last_was_valid = current_is_valid;
     }
 
-    // Print the buffer state
     dataBuffer->printBufferState();
 
     // Print the size of the JSON buffer
@@ -194,7 +176,6 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
     Serial.print("/");
     Serial.println(jsonBatchSize);
 
-    // Print the indexes of the buffer
     dataBuffer->printBufferIndexes();
 
     // If we just send an amount of data to the database, give an interval to Core 0 to work on maintence activities, avoiding crash problems

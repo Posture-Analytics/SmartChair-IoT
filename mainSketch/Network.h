@@ -1,9 +1,10 @@
 /*
     Network.h
 
-    * This module handle the network connection of the device.
+    * This module handles the network connection of the device.
     * It connects to the WiFi network and syncs the device's time with an NTP Server time.
-    * It also format the unix timestamp to a human readable format or to a timestamp in milliseconds.
+    * It also formats the unix timestamp to a human readable format
+    or to a timestamp in milliseconds.
 */
 
 #ifndef Network_H_
@@ -26,13 +27,13 @@ void setupWiFi();
 // Sync the device's time with an NTP Server time
 void syncWithNTPTime();
 
-// Prints the time obtained from the NTP server during the initialization
+// Print the time obtained from the NTP server during the initialization
 void printLocalTime();
 
-// Function that gets current epoch time
+// Get current epoch time
 time_t getCurrentTime();
 
-// Function that return the current timestamp in milliseconds since 01 January 1970
+// Return the current timestamp in milliseconds since 01 January 1970
 unsigned long long getCurrentMillisTimestamp();
 
 #endif  // Network_H_

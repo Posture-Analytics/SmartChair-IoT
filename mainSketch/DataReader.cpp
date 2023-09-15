@@ -2,13 +2,11 @@
 #include "Network.h"
 #include "Buffer.h"
 
-// Update the current time variable
 void DataReader::updateCurrentTime() {
     // Set the variable 'currentMicros' with the current time in microseconds (us)
     currentMicros = micros();
 }
 
-// Setup the sensors and the devices' pins
 bool DataReader::setup() {
     // Set each pressure sensor pin as an input
     for (int i = 0; i < internalAdcPinsCount; ++i) {
@@ -24,38 +22,43 @@ bool DataReader::setup() {
     return true;
 }
 
-// Collect data from the sensors and store it on the buffer
+void DataReader::addDataToSample(sensorData* newSample) {
+    // Fill the buffer with current timestamp (in milliseconds)
+    newSample->timestampMillis = getCurrentMillisTimestamp();
+
+    // Fill the buffer with sensor data connected to the internal ADC
+    int i = 0;
+    for (i; i < internalAdcPinsCount; ++i) {
+        newSample->pressureSensor[i] = analogRead(internalAdcPins[i]);
+    }
+
+    // Fill the buffer with sensor data connected to the external ADC
+    int externalAdcsChannelIndex = 0;
+    for (i; i < internalAdcPinsCount + externalAdcPinsCount; i += 2) {
+        externalAdcs.read(externalAdcsChannelIndex);
+
+        // Fill the buffer with the collected values
+        newSample->pressureSensor[i] = externalAdcs.get(0);
+        newSample->pressureSensor[i + 1] = externalAdcs.get(1);
+
+        // Go to next channel of the external ADCs
+        externalAdcsChannelIndex++;
+    }
+}
+
 void DataReader::fillBuffer(SensorDataBuffer* dataBuffer) {
-    // Save the time when the device start to collect the data from the sensors, to keep control of the intervals of data collect
+    // Save the time when the device start to collect the data from the sensors,
+    // to keep control of the intervals between data collection
     updateCurrentTime();
 
-    // If the time elapsed since the last data collect is greater than the interval between data collect (or if it's the first collect), collect the data
-    if (currentMicros - dataPrevColletionMicros > dataCollectIntervalMicros || dataPrevColletionMicros == 0) {
+    // If the time elapsed since the last data collection is greater than the
+    // set interval for data collections, collect more data
+    if (currentMicros - dataPrevColletionMicros > dataCollectIntervalMicros) {
 
-        // Get the pointer to the sample to be written
-        newSample = dataBuffer->addSample();
+        // Pointer to the next sample to be written
+        sensorData* newSample = dataBuffer->getNewSample();
 
-        // Fill the buffer with current timestamp (in milliseconds)
-        newSample->timestampMillis = getCurrentMillisTimestamp();
-
-        // Fill the buffer with sensors data connected to the internal ADC
-        int i = 0;
-        for (i; i < internalAdcPinsCount; ++i) {
-            newSample->pressureSensor[i] = analogRead(internalAdcPins[i]);
-        }
-
-        // Fill the buffer with sensors data connected to the external ADC
-        int externalAdcsChannelIndex = 0;
-        for (i; i < internalAdcPinsCount + externalAdcPinsCount; i += 2) {
-            externalAdcs.read(externalAdcsChannelIndex);
-
-            // Fill the buffer with the collected values
-            newSample->pressureSensor[i] = externalAdcs.get(0);
-            newSample->pressureSensor[i + 1] = externalAdcs.get(1);
-
-            // Go to next channel of the external ADCs
-            externalAdcsChannelIndex++;
-        }
+        addDataToSample(newSample);
 
         // Update the time variable that controls the collect interval
         dataPrevColletionMicros = currentMicros;

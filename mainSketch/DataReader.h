@@ -34,9 +34,6 @@ class DataReader {
     // Save the current time, in microseconds (us)
     unsigned long currentMicros = 0;
 
-    // Pointer to the next sample to be written
-    sensorData* newSample;
-
     // Update the current time variable
     void updateCurrentTime();
 
@@ -45,7 +42,10 @@ public:
     // Setup the sensors and the devices' pins
     bool setup();
 
-    // Collect data from the sensors and store it on the buffer
+    // Collect data from the sensors and store it in the buffer location represented by the pointer
+    void addDataToSample(sensorData* newSample);
+
+    // Fill buffer if the moment of the function call is greater than the data collection interval
     void fillBuffer(SensorDataBuffer* dataBuffer);
 };
 

@@ -1,10 +1,12 @@
 /*
     Buffer.h
 
-    * This module handle the buffer that stores the data collected from the sensors.
-    * The buffer consists of an array of sensorData structs and some indexes to keep track of the buffer state.
-    * It also provides functions to add and get samples from the buffer, handle buffer capacity and indexes.
-    * For debug purposes, it also provides functions to print the buffer state and dump its content.
+    * This module handles the buffer that stores the data collected from the sensors.
+    * The buffer consists of an array of sensorData structs and some indexes to keep track of
+    the buffer state. It also provides functions to add and get samples from the buffer,
+    handle buffer capacity and indexes.
+    * For debug purposes, it also provides functions to print the buffer state and dump
+    its content.
 */
 
 #ifndef Buffer_H_
@@ -32,13 +34,17 @@ struct sensorData {
 // Define a class to store the collected data
 class SensorDataBuffer {
 
+    // Sotre information regarding the time of the read samples
+    struct tm timeInfo;
+
+    // Store the timestamp of the following day to check if the date has changed
+    // The initial value is 0 so that it gets updated during the first use
+    time_t nextDay = 0;
+
 public:
 
     // Create a buffer based on the sensorData struct
     sensorData buffer[BUFFER_CAPACITY];
-
-    // Stores the timestamp of the following day to check if the date has changed
-    time_t nextDay;
 
     // Hold the number of samples in the buffer
     int bufferSize = 0;
@@ -47,9 +53,6 @@ public:
     int readIndex = 0;
     // Index to write the next sample
     int writeIndex = 0;
-
-    // Hold the current date path
-    char sampleDate[12];
 
     // Check if the buffer is empty
     bool isBufferEmpty() const;
@@ -81,8 +84,14 @@ public:
     // Move the write index to the previous sample
     void moveWriteIndexBackward();
 
-    // Get the current sample date path
-    void getCurrentSampleDatePath();
+    // Get the timestamp of the next sample to be read from the buffer
+    time_t getCurrentSampleMillis() const;
+
+    // Get the current sample date. Should receive an array of at least 11 chars
+    void computeCurrentSampleDate(char* sampleDate);
+
+    // Compute the timestamp of the start of the following day
+    void computeNextDaySeconds();
 
     // Check if the date has changed
     bool hasDateChanged();
@@ -90,11 +99,11 @@ public:
     // Check if the content of the sample is null
     bool isSampleNull(const sensorData* sample) const;
 
-    // Return the pointer to the next sample to be written
-    sensorData* addSample();
-
-    // Get the next sample from the buffer
+    // Get the next sample from the buffer at the read index and increment it
     const sensorData* getSample();
+
+    // Return a pointer to the new sample to be written and increment the write index
+    sensorData* getNewSample();
 
     // Print the buffer state
     void printBufferState() const;
