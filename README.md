@@ -37,8 +37,8 @@ All the information about this open-source project can be found in this reposito
 1. [Conceptual Diagram](<Diagrams/Conceptual Diagram/Conceptual Diagram.png>)
 2. [Pressure Sensors Distribution](<Diagrams/Pressure Sensors Distribution/Pressure Sensors Distribution.png>)
 3. [Circuit Diagram](<Diagrams/Circuit Diagram/Circuit Diagram.png>)
-4. **Circuit Schematic**: [Link to the circuit schematic or embed the image]
-5. **Flow Chart**: [Link to the flowchart or embed the image]
+4. [Circuit Schematic](<Diagrams/Circuit Schematic/Circuit Schematic.png>)
+5. [Sketch Flowchart](<Diagrams/Sketch Flowchart/Sketch Flowchart.png>)
 
 ## Modules
 
