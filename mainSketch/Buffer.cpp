@@ -52,7 +52,7 @@ time_t SensorDataBuffer::getCurrentSampleSeconds() const {
 
 void SensorDataBuffer::computeCurrentSampleDate(char* sampleDate) {
     // Get the next sample from the buffer
-    time_t sampleTimestamp = getCurrentSampleSeconds();
+    time_t sampleTimestampSec = getCurrentSampleSeconds();
     // Get the time information from the time_t object
     localtime_r(&sampleTimestampSec, &timeInfo);
     // Convert the struct tm to a formatted string like "YYYY-MM-DD\0"
@@ -60,7 +60,7 @@ void SensorDataBuffer::computeCurrentSampleDate(char* sampleDate) {
 }
 
 void SensorDataBuffer::computeNextDaySeconds() {
-    time_t sampleTimestamp = getCurrentSampleSeconds();
+    time_t sampleTimestampSec = getCurrentSampleSeconds();
     // Get the time info of the next day
     sampleTimestampSec += 24 * 60 * 60;
     localtime_r(&sampleTimestampSec, &timeInfo);
