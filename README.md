@@ -82,18 +82,18 @@ The database JSON tree structure is as follows:
     "sensor_data": {
         "YYYY-MM-DD": {
             "COLLECT_TIMESTAMP_MILLIS": [
-                0: "SENSOR_1_VALUE",
-                1: "SENSOR_2_VALUE",
-                2: "SENSOR_3_VALUE",
-                3: "SENSOR_4_VALUE",
-                4: "SENSOR_5_VALUE",
-                5: "SENSOR_6_VALUE",
-                6: "SENSOR_7_VALUE",
-                7: "SENSOR_8_VALUE",
-                8: "SENSOR_9_VALUE",
-                9: "SENSOR_10_VALUE",
-                10: "SENSOR_11_VALUE",
-                11: "SENSOR_12_VALUE"
+                "0": "SENSOR_1_VALUE",
+                "1": "SENSOR_2_VALUE",
+                "2": "SENSOR_3_VALUE",
+                "3": "SENSOR_4_VALUE",
+                "4": "SENSOR_5_VALUE",
+                "5": "SENSOR_6_VALUE",
+                "6": "SENSOR_7_VALUE",
+                "7": "SENSOR_8_VALUE",
+                "8": "SENSOR_9_VALUE",
+                "9": "SENSOR_10_VALUE",
+                "10": "SENSOR_11_VALUE",
+                "11": "SENSOR_12_VALUE"
             ]
         }
     }
