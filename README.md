@@ -38,8 +38,8 @@ All the information about this open-source project can be found in this reposito
 1. [Conceptual Diagram](<Diagrams/Conceptual Diagram/Conceptual Diagram.png>)
 2. [Pressure Sensors Distribution](<Diagrams/Pressure Sensors Distribution/Pressure Sensors Distribution.png>)
 3. [Circuit Diagram](<Diagrams/Circuit Diagram/Circuit Diagram.png>)
-4. **Circuit Schematic**: [Link to the circuit schematic or embed the image]
-5. **Flow Chart**: [Link to the flowchart or embed the image]
+4. [Circuit Schematic](<Diagrams/Circuit Schematic/Circuit Schematic.png>)
+5. [Sketch Flowchart](<Diagrams/Sketch Flowchart/Sketch Flowchart.png>)
 
 ## Modules
 
@@ -75,17 +75,25 @@ We've decided to use **Google's Firebase Realtime Database** due to its simplici
 The database JSON tree structure is as follows:
 
 ```json
-{ // Root of the database
-    "bootLog": { // For storing the initialization timestamp of the device
-        "HASH": INITIALIZATION_TIMESTAMP_MILLIS
+{
+    "bootLog": {
+        "HASH": "INITIALIZATION_TIMESTAMP_MILLIS"
     },
-    "sensor_data": { // For storing the sensor data
+    "sensor_data": {
         "YYYY-MM-DD": {
-            COLLECT_TIMESTAMP_MILLIS: [
-                0: SENSOR_1_VALUE,
-                1: SENSOR_2_VALUE,
-                ...,
-                11: SENSOR_12_VALUE
+            "COLLECT_TIMESTAMP_MILLIS": [
+                0: "SENSOR_1_VALUE",
+                1: "SENSOR_2_VALUE",
+                2: "SENSOR_3_VALUE",
+                3: "SENSOR_4_VALUE",
+                4: "SENSOR_5_VALUE",
+                5: "SENSOR_6_VALUE",
+                6: "SENSOR_7_VALUE",
+                7: "SENSOR_8_VALUE",
+                8: "SENSOR_9_VALUE",
+                9: "SENSOR_10_VALUE",
+                10: "SENSOR_11_VALUE",
+                11: "SENSOR_12_VALUE"
             ]
         }
     }
