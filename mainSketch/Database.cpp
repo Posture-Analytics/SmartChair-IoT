@@ -72,7 +72,8 @@ void Database::appendDataToJSON(const sensorData* data) {
     // Set the node where the data will be stored as a the date, with a milliseconds subkey.
     jsonBuffer.add(data->timestampMillis, payload);
 
-    // Increment the jsonSize to keep control of how many data samples are been stored in the JSON buffer
+    // Increment the jsonSize to keep control of how many data samples are been stored in the JSON
+    // buffer
     jsonSize++;
 }
 
@@ -99,7 +100,8 @@ bool Database::pushData() {
 
                 // If the data was sent successfully, we return true
                 return true;
-            // If some error occurs during this process, we show as a fatal database error and restart the device
+            // If some error occurs during this process, we show as a fatal database error and
+            // restart the device
             } else {
                 Serial.print("Database error: ");
                 Serial.println(fbdo.errorReason());
@@ -121,29 +123,19 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
     // to keep control of the intervals between data uploads
     updateCurrentTime();
 
-    if (dataBuffer->hasDateChanged()) {
-        // Update the path of the database node that will receive the data
-        dataBuffer->computeCurrentSampleDate(sampleDate);
-        // Add a slash to the end of the date string to make the path valid
-        sampleDate[10] = '/';
-        sampleDate[11] = '\0';
-        // Get the seconds that represent the following day, used to check if the date changed
-        dataBuffer->computeNextDaySeconds();
-        // Update the current path with the new date
-        fullDataPath = DATABASE_BASE_PATH + sampleDate;
-    }
-
     // If the time elapsed since the last data sending is greater than the interval between
-    // the data uploads, or if the JSON buffer is full, we send the data to the database
+    // the data uploads, if the JSON buffer is full or if the next package is from another day, we
+    // send the data to the database
     if ((jsonSize > 0 && currentMicros - dataPrevSendingMicros > dataSendIntervalMicros)
-            || jsonSize >= jsonBatchSize) {
+            || jsonSize >= jsonBatchSize
+            || jsonSize > 0 && dataBuffer->hasDateChanged()) {
         pushData();
 
         // Update the time variable that controls the send interval
         dataPrevSendingMicros = currentMicros;
     }
 
-    // Otherwise, we want to fill the JSON buffer with the data from the main buffer
+    // Otherwise, we keep filling the JSON buffer with the data from the main buffer
     else {
 
         // Get one sample from the sensor data buffer
@@ -167,6 +159,19 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
         last_was_valid = current_is_valid;
     }
 
+    // If necessary, we update the path of the database node that will receive the data
+    if (dataBuffer->hasDateChanged()) {
+        // Get the date string of the current sample
+        dataBuffer->computeCurrentSampleDate(sampleDate);
+        // Add a slash to the end of the date string to make the path valid
+        sampleDate[10] = '/';
+        sampleDate[11] = '\0';
+        // Get the seconds that represent the following day, used to check if the date changed
+        dataBuffer->computeNextDaySeconds();
+        // Update the path of the database node that will receive the data
+        fullDataPath = DATABASE_BASE_PATH + sampleDate;
+    }
+
     dataBuffer->printBufferState();
 
     // Print the size of the JSON buffer
@@ -177,7 +182,8 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
 
     dataBuffer->printBufferIndexes();
 
-    // If we just send an amount of data to the database, give an interval to Core 0 to work on maintence activities, avoiding crash problems
+    // If we just send an amount of data to the database,
+    // give an interval to Core 0 to work on maintence activities, avoiding crash problems
     vTaskDelay(10);
     yield();
 }
