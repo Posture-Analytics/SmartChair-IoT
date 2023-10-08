@@ -34,3 +34,6 @@
 build/
 ignore/
 .vscode/
+
+# Credentials
+mainSketch/Credentials.h

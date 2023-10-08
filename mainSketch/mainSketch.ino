@@ -6,6 +6,7 @@
 // DEBUG Flag, prints data to Serial instead of sending to the database
 // #define DEBUG
 
+#include "Credentials.h"
 #include "Errors.h"
 #include "Network.h"
 #include "Buffer.h"

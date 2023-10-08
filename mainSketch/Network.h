@@ -11,10 +11,7 @@
 #define Network_H_
 
 #include <time.h>
-
-// Define the WiFi credentials (https://youtu.be/pDDdA9qEFwY)
-static const char* WIFI_SSID = "Cadeirudo";
-static const char* WIFI_PASSWORD = "cadeirinha123*#";
+#include "Credentials.h"
 
 // Define constants for the connection with the NTP Server, in order to get the current time
 static const char* ntpServer = "pool.ntp.org";  // NTP Server address
