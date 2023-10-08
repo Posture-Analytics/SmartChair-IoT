@@ -56,7 +56,7 @@ class Database {
     // Update the current time variable
     void updateCurrentTime();
 
- public:
+public:
     Database();
 
     // Log the device's boot. Useful to analyze crashes, stability, reboots...
