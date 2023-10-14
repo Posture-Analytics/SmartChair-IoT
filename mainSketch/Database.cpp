@@ -46,16 +46,16 @@ void Database::bootLog() {
         } else {
             Serial.println("Ocorreu um erro ao registrar a inicialização:");
             Serial.println(fbdo.errorReason().c_str());
-            showError(noDatabaseConnection, true);
+            errorHandler.showError(ErrorType::NoDatabaseConnection, true);
         }
     // If the Firebase Database is not ready, we test the connection to
     // the network and to the database and display it on the LED indicator
     } else {
         if (WiFi.status() != WL_CONNECTED) {
-            showError(noInternet, true);
+            errorHandler.showError(ErrorType::NoInternet, true);
             Serial.println("Reconectando à rede...");
         } else {
-            showError(noDatabaseConnection, true);
+            errorHandler.showError(ErrorType::NoDatabaseConnection, true);
             Serial.println("Reconectando ao banco de dados...");
         }
     }
@@ -81,7 +81,7 @@ bool Database::pushData() {
     #ifdef DEBUG
 
         // In debug mode, we only print the values instead of sending them to the database
-        json.toString(Serial, true);
+        json.toString(Serial, true, 255);
         return true;
 
     #else
@@ -92,7 +92,7 @@ bool Database::pushData() {
             // Send the data to database
             if (Firebase.updateNodeSilentAsync(fbdo, fullDataPath, jsonBuffer)) {
                 // Update the LED indicator, showing that everything works fine
-                showError(none);
+                errorHandler.showError(ErrorType::None);
 
                 // Clear the JSON buffer and reset the counter
                 jsonBuffer.clear();
@@ -107,7 +107,7 @@ bool Database::pushData() {
                 Serial.println(fbdo.errorReason());
                 Serial.println(fullDataPath);
                 Serial.println(jsonBuffer.serializedBufferLength());
-                showError(noDatabaseConnection);
+                errorHandler.showError(ErrorType::NoDatabaseConnection);
 
                 return false;
             }

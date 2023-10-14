@@ -128,7 +128,7 @@ void SensorDataBuffer::printBufferState() const {
     // If the buffer gets full
     if (isBufferFull()) {
         // Print an error message and restart the device
-        showError(bufferFull, true);
+        errorHandler.showError(ErrorType::BufferFull, true);
     }
 
     // Prints the buffer state

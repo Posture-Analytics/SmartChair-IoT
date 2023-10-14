@@ -6,12 +6,15 @@
 // DEBUG Flag, prints data to Serial instead of sending to the database
 // #define DEBUG
 
-#include "Credentials.h"
 #include "Errors.h"
+#include "Credentials.h"
 #include "Network.h"
 #include "Buffer.h"
 #include "DataReader.h"
 #include "Database.h"
+
+// Create a errors object to handle them and show them on the RGB LED
+Errors errorHandler;
 
 // Create a task to assign the data push to the database to Core 0
 TaskHandle_t sendToDatabaseTask;
@@ -33,12 +36,9 @@ void setup() {
     Serial.begin(115200);  // Open the Serial Port for communication with baudrate 115200
     Wire.begin();  // Start the I2C communication
 
-    // Setup the RGB built-in LED to show the device's current status or errors
-    setupLED();
-
     // Setup the sensors
     if(!dataReader.setup()){
-        showError(externalADCInitFailure, true);
+        errorHandler.showError(ErrorType::ExternalADCInitFailure, true);
     }
 
     // Setup WiFi connection
@@ -66,7 +66,7 @@ void setup() {
     // Register the boot on the database ("/bootLog")
     database.bootLog();
 
-    showError(none);
+    errorHandler.showError(ErrorType::None);
 }
 
 // Main loop, that keep running on Core 1

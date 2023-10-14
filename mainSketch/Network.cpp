@@ -10,7 +10,7 @@ void setupWiFi() {
 
     // If the connection fails, start a loop, retrying every 0.5 seconds
     while (WiFi.status() != WL_CONNECTED) {
-        showError(noInternet);
+        errorHandler.showError(ErrorType::NoInternet);
         Serial.print(".");
         delay(500);
     }
@@ -32,7 +32,7 @@ void printLocalTime() {
 
     // If the local time is not available, we have a fatal error
     if (!getLocalTime(&timeInfo)) {
-        showError(noNTPdata, true);
+        errorHandler.showError(ErrorType::NoNTPdata, true);
         Serial.println("Failed to obtain time");
         return;
     }
@@ -47,7 +47,7 @@ time_t getCurrentTime() {
 
     // If the local time is not available, we have a fatal error
     if (!getLocalTime(&timeInfo)) {
-        showError(noNTPdata, true);
+        errorHandler.showError(ErrorType::NoNTPdata, true);
         Serial.println("Failed to obtain Unix time");
         return (0);
     }
