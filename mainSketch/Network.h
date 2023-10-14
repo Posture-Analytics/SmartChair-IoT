@@ -18,19 +18,34 @@ static const char* ntpServer = "pool.ntp.org";  // NTP Server address
 static const long gmtOffset_sec = -10800;  // GMT Offset in seconds (-3 hours)
 static const int daylightOffset_sec = 0;  // Daylight Offset in seconds (0)
 
-// Setup the WiFi connection
+/**
+ * Try to connect to the WiFi network defined in the Credentials.h file.
+ * If the connection fails, it will try again until it succeeds.
+ */
 void setupWiFi();
 
-// Sync the device's time with an NTP Server time
+/** 
+ * Sync the device's time with an NTP Server time 
+ */
 void syncWithNTPTime();
 
-// Print the time obtained from the NTP server during the initialization
+/**
+ * Print the current time obtained from the NTP server in a human readable format
+ */
 void printLocalTime();
 
-// Get current epoch time
+/**
+ * Get current epoch time
+ * 
+ * @return the current time in epoch format (unix timestamp)
+*/
 time_t getCurrentTime();
 
-// Return the current timestamp in milliseconds since 01 January 1970
+/**
+ * Obtain the time in milliseconds since 01 January 1970
+ * 
+ * @return the current timestamp in milliseconds
+*/
 unsigned long long getCurrentMillisTimestamp();
 
 #endif  // Network_H_

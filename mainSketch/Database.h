@@ -20,6 +20,16 @@
 // Send Rate of the data sending, in hertz (Hz)
 const int SEND_RATE = 2;
 
+/**
+ * Database class to handle the database connection and data sending 
+ * to the Firebase Realtime Database
+ * 
+ * This class uses the FirebaseESP32 library to connect and send data directly to the
+ * Firebase Realtime Database. It also provides a function to structure the collected
+ * data into JSON formatted batches to be sent to the database.
+ * 
+ * It also logs the device's boot, useful to analyze crashes, stability, reboots...
+ */
 class Database {
     static const int jsonBatchSize = 10;
 
@@ -57,21 +67,39 @@ class Database {
     void updateCurrentTime();
 
 public:
+    /**
+     * Constructor for the Database class
+    */
     Database();
 
-    // Log the device's boot. Useful to analyze crashes, stability, reboots...
+    /**
+     * Log the device's boot. Useful to analyze crashes, stability, reboots...
+     * Prints all the relevant information to the Serial Monitor
+     */
     void bootLog();
 
-    // Setup the database connection
+    /** 
+     * Setup the database connection 
+     * @param timestampUnix The timestamp of the device's boot, in Unix time
+     */
     void setup(time_t timestampUnix);
 
-    // Append sensor data into the JSON object
+    /**
+     * Append sensor data into the JSON object
+     * @param data The sensor data to be appended
+    */
     void appendDataToJSON(const sensorData* data);
 
-    // Send the JSON object to the database, update the node asynchronously
+    /**
+     * Send the JSON object to the database, update the node asynchronously
+     * @return Whether or not the data was successfully sent to the database
+     */
     bool pushData();
 
-    // Track the incoming data and fill the json buffer to be sent to the database
+    /**
+     * Track the incoming data and fill the json buffer to be sent to the database
+     * @param dataBuffer The buffer containing the sensor data
+     */
     void sendData(SensorDataBuffer* dataBuffer);
 };
 

@@ -24,6 +24,12 @@
 #define MEASURE_MODE ADS1115_SINGLE
 #define CONVERSION_RATE ADS1115_860_SPS
 
+
+/**
+ * Class that handles the external ADCs and the data collection through them.
+ * It setups the external ADCs and checks the status of the initialization process.
+ * It also reads the data from the external ADCs in parallel, according to the channel
+ */
 class ExternalADCs {
 
     // Instantiate 2 ADS1115_WE objects, one for each external ADC
@@ -34,13 +40,26 @@ class ExternalADCs {
 
  public:
 
-    // Setup the external ADCs
+    /**
+     * Setup the external ADCs
+     * 
+     * @return true if the setup was successful, false otherwise
+     */
     bool setup();
 
-    // Read the external ADCs in parallel, according to the channel index
+    /**
+     * Read the external ADCs in parallel, according to the channel index
+     * 
+     * @param channelIndex the index of the channel to read from
+     */
     void read(int channelIndex);
 
-    // Get the read from the external ADCs, according to the index
+    /**
+     * Get the read from the external ADCs, according to the index
+     * 
+     * @param index the index of the channel to read from
+     * @return the read from the external ADCs
+     */
     int get(int index) const;
 };
 

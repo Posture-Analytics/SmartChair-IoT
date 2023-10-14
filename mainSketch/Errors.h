@@ -10,20 +10,29 @@
 #ifndef Errors_H_
 #define Errors_H_
 
-// Enumerate the erros that will be tracked by the LED colors
+/**
+ * Enumerate the erros that will be tracked by the LED colors
+ * 
+ * none: No error (Green)
+ * noInternet: No internet connection (Yellow)
+ * noDatabaseConnection: No database connection (Dark Blue)
+ * noNTPdata: NTP Sync failed (Magenta)
+ * bufferFull: Buffer full (Red)
+ * externalADCInitFailure: External ADCs initialization failure (Aqua)
+*/
 enum errors {
-  none,                   // No error (Green)
-  noInternet,             // No internet connection (Yellow)
-  noDatabaseConnection,   // No database connection (Dark Blue)
-  noNTPdata,              // NTP Sync failed (Magenta)
-  bufferFull,             // Buffer full (Red)
-  externalADCInitFailure  // External ADCs initialization failure (Aqua)
+  none,
+  noInternet,
+  noDatabaseConnection,
+  noNTPdata,
+  bufferFull,
+  externalADCInitFailure
 };
 
-// Void that initialize the RGB built-in LED
+/** Initialize the RGB built-in LED */
 void setupLED();
 
-// Void that updates the LED color according to the current error status
+/** Update the LED color according to the current error status */
 void showError(errors error, bool fatal = false);
 
 #endif  // Errors_H_
