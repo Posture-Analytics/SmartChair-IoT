@@ -13,19 +13,7 @@
 #include <FirebaseESP32.h>
 
 #include "Buffer.h"
-
-// Define the API Key
-#define DATABASE_API_KEY "AIzaSyCO3WjQJodTcimQjzQnQ5_ZpEgxyaQR-0o";
-// Define the RTDB (Realtime Database) URL
-#define DATABASE_URL "https://friendly-bazaar-334818-default-rtdb.firebaseio.com/";
-
-// // Test database credentials
-// #define DATABASE_API_KEY "AIzaSyASxq5x-HYYTv1jLM2L1WJoC2xFTOaCj2E";
-// #define DATABASE_URL "https://esp32test-115a2-default-rtdb.firebaseio.com/";
-
-// Define the user e-mail and password that were already registered or added to the project
-#define DATABASE_USER_EMAIL "admin@admin.com";
-#define DATABASE_USER_PASSWORD "adminadmin";
+#include "Credentials.h"
 
 // Send Rate of the data sending, in hertz (Hz)
 const int SEND_RATE = 2;
