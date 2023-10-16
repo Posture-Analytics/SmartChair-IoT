@@ -25,7 +25,7 @@ bool ExternalADCs::setup() {
                 Serial.print("ADS1115 No ");
                 Serial.print(i);
                 Serial.println(" not connected!");
-                showError(externalADCInitFailure, true);
+                errorHandler.showError(ErrorType::ExternalADCInitFailure);
                 return false;
             }
             // Set the voltage range of the ADCs

@@ -1,10 +1,12 @@
 /*
     Database.h
 
-    * This module handle the database connection and provides functions to send data to the database.
-    * It uses the FirebaseESP32 library to connect and send data directly to the Firebase Realtime Database.
-    * It also provides a function to structure the collected data into JSON formatted batches to be sent to the database.
-    * It also log the device's boot, useful to analyze crashes, stability, reboots...
+    * This module handles the database connection and provides functions to send data
+    to the database.
+    * It uses the FirebaseESP32 library to connect and send data directly to the
+    Firebase Realtime Database. It also provides a function to structure the collected
+    data into JSON formatted batches to be sent to the database.
+    * It also logs the device's boot, useful to analyze crashes, stability, reboots...
 */
 
 #ifndef Database_H_
@@ -18,6 +20,16 @@
 // Send Rate of the data sending, in hertz (Hz)
 const int SEND_RATE = 2;
 
+/**
+ * Database class to handle the database connection and data sending 
+ * to the Firebase Realtime Database
+ * 
+ * This class uses the FirebaseESP32 library to connect and send data directly to the
+ * Firebase Realtime Database. It also provides a function to structure the collected
+ * data into JSON formatted batches to be sent to the database.
+ * 
+ * It also logs the device's boot, useful to analyze crashes, stability, reboots...
+ */
 class Database {
     static const int jsonBatchSize = 10;
 
@@ -32,13 +44,16 @@ class Database {
     // Create a counter to help to fill the JSON object until a certain size
     int jsonSize = 0;
 
+    // Store the current date
+    char sampleDate[12];
+
     // Set the database where the json will be pushed to
     String DATABASE_BASE_PATH = "/yet_another_test/";
 
     // Set the data path on the database where the sensor data will be stored
     String fullDataPath;
 
-    // Stores whether or not the last sample from the sensors was valid (non-zero)
+    // Store whether or not the last sample from the sensors was valid (non-zero)
     bool last_was_valid;
 
     // Set the interval between data send, in microseconds (us)
@@ -51,22 +66,40 @@ class Database {
     // Update the current time variable
     void updateCurrentTime();
 
- public:
+public:
+    /**
+     * Constructor for the Database class
+    */
     Database();
 
-    // Function that logs the device's boot. Useful to analyze crashes, stability, reboots...
+    /**
+     * Log the device's boot. Useful to analyze crashes, stability, reboots...
+     * Prints all the relevant information to the Serial Monitor
+     */
     void bootLog();
 
-    // Function that setup the database connection
+    /** 
+     * Setup the database connection 
+     * @param timestampUnix The timestamp of the device's boot, in Unix time
+     */
     void setup(time_t timestampUnix);
 
-    // Funcion that append sensor data into the JSON object
+    /**
+     * Append sensor data into the JSON object
+     * @param data The sensor data to be appended
+    */
     void appendDataToJSON(const sensorData* data);
 
-    // Function that sends the JSON object to the database, update the node asynchronously
+    /**
+     * Send the JSON object to the database, update the node asynchronously
+     * @return Whether or not the data was successfully sent to the database
+     */
     bool pushData();
 
-    // Function that track the incoming data and fill the json buffer to be sent to the database
+    /**
+     * Track the incoming data and fill the json buffer to be sent to the database
+     * @param dataBuffer The buffer containing the sensor data
+     */
     void sendData(SensorDataBuffer* dataBuffer);
 };
 

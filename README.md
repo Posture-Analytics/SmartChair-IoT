@@ -1,8 +1,8 @@
 # SmartChair-IoT
 
-Code and documentation of the SmartChair project's IoT device, handling the microcontroller and the sensors connected to it.
+Code and documentation of the SmartChair project's IoT device, handling the microcontroller and the sensors connected to a office chair, collecting data and sending it a the Firebase Realtime Database for further analysis.
 
-All the information about this open-source project can be found in this repository, including the sketch, diagrams, documentation, instructions and more.
+All the information about the IoT device of this open-source project can be found in this repository, including the sketch, diagrams, documentation, instructions and more. For more information about the project's machine learning algorithm and visulization tool, please visit the [Posture-Analytics organization](https://github.com/Posture-Analytics) on GitHub.
 
 ---
 
@@ -29,7 +29,7 @@ All the information about this open-source project can be found in this reposito
     - `ADS1115_WE`
     - `FastLED`
     - `Firebase ESP32 Client`
-5. **Open the sketch and configure the code**: Open the `mainSketch.ino` file in the Arduino IDE 2.0 and configure the code (see [Configuration & Variables](#configuration--variables)). You must configure the WiFi network and the Firebase Realtime Database keys, URLs and credentials. Otherwise, the code will not work (either because it will not be able to connect to the WiFi network or because it will not be able to connect to the Firebase Realtime Database)
+5. **Open the sketch and configure the code**: Open the `mainSketch.ino` file in the Arduino IDE 2.0 and configure the code (see [Configuration & Variables](#configuration--variables)). You must configure the WiFi network and the Firebase Realtime Database keys, URLs and credentials with your own data. For that, you must fill `Credentials.h` file with your WiFi and Firebase Realtime Database credentials. Otherwise, the code will not work (either because it will not be able to connect to the WiFi network or because it will not be able to connect to the Firebase Realtime Database)
 6. **Connect the microcontroller to the computer**: Connect the microcontroller to the computer using a USB cable. Also select the correct COM port in the Arduino IDE 2.0 (`Tools > Port`) and the correct board (`Tools > Board > esp32 Arduino > SparkFun ESP32 Thing Plus C`).
 7. **Upload the code to the microcontroller**: Open the `mainSketch.ino` file in the Arduino IDE 2.0 and upload the code to the microcontroller (`Sketch > Upload` / `Ctrl+U`). Wait until the code is uploaded and the microcontroller is ready to use.
 
@@ -51,22 +51,24 @@ All the information about this open-source project can be found in this reposito
 | `Database` | Establishes a connection to the Firebase Realtime Database and push the data from the buffer to the database. |
 | `ExternalADCs` | Handle the external ADCs that are connected to the microcontroller and convert the data from the sensors to digital values. |
 | `Errors` | Handle the errors that occur during the execution of the program. | 
+| `Credentials` | Store the credentials of the WiFi network and the Firebase Realtime Database. |
 
 ## Configuration & Variables
 
 This section highlights the key variables in the project which can be changed for customization.
 
-**Note**: The variables about the WiFi network and the Firebase Realtime Database keys, URLs and credentials are not shown here. You must configure them in the code (see [Installation & Setup](#installation--setup)) to be able to use the device.
+**Note**: The variables about the WiFi network and the Firebase Realtime Database keys, URLs and credentials must be configured in the `Credentials.h` file in order to be able to use the device. Otherwise, the code will not work (either because it will not be able to connect to the WiFi network or because it will not be able to connect to the Firebase Realtime Database). For more information, see [Installation & Setup](#installation--setup).
 
 | Variable Name | Module | Description | Default Value |
 |---------------|---------------|-------------|---------------|
 | `SAMPLE_RATE`  | `DataReader` | Sample rate of the data collection, in hertz (Hz) | `2` |
-| `WIFI_SSID`  | `Network` | WiFi network SSID | Your network SSID |
-| `WIFI_PASSWORD`  | `Network` | WiFi network password | Your network password|
-| `DATABASE_API_KEY`  | `Database` | Firebase Realtime Database API key | Your Firebase Realtime Database API key |
-| `DATABASE_URL`  | `Database` | Firebase Realtime Database URL | Your Firebase Realtime Database URL |
-| `DATABASE_USER_EMAIL`  | `Database` | Firebase Realtime Database registered access email | Your Firebase Realtime Database registered access email |
-| `DATABASE_USER_PASSWORD`  | `Database` | Firebase Realtime Database registered access password | Your Firebase Realtime Database registered access password |
+| `SEND_RATE`  | `Database` | Send rate of the data to the database, in hertz (Hz) | `2` |
+| `WIFI_SSID`  | `Credentials` | WiFi network SSID | Your network SSID |
+| `WIFI_PASSWORD`  | `Credentials` | WiFi network password | Your network password|
+| `DATABASE_API_KEY`  | `Credentials` | Firebase Realtime Database API key | Your Firebase Realtime Database API key |
+| `DATABASE_URL`  | `Credentials` | Firebase Realtime Database URL | Your Firebase Realtime Database URL |
+| `DATABASE_USER_EMAIL`  | `Credentials` | Firebase Realtime Database registered access email | Your Firebase Realtime Database registered access email |
+| `DATABASE_USER_PASSWORD`  | `Credentials` | Firebase Realtime Database registered access password | Your Firebase Realtime Database registered access password |
 
 ## Database Structure
 
@@ -105,19 +107,20 @@ Where:
 - `INITIALIZATION_TIMESTAMP_MILLIS`: Timestamp in milliseconds of the initialization of the device.
 - `YYYY-MM-DD`: Date of the data collection.
 - `COLLECT_TIMESTAMP_MILLIS`: Timestamp in milliseconds of the data collection.
+- `SENSOR_X_VALUE`: Value of the pressure sensor X at the time of the data collection.
 
 ## Future Improvements
 
 - **New version of the SmartChair**: Now, using a ergonomically certified office chair
-- **More pressure sensor array**: Extend the array to 24 sensors, to be able to detect the optimal positioning of the sensors on the chair's surface (seat and backrest)
-- **More sensors**: Add new types of sensors to the chair, like IMUs (ICM-20948) and ToF sensors (VL6180 and VL53L5CX) to to improve the user's posture recognition
-- **Extend battery life**: Use a more efficient components and implement a sleep mode to extend the battery life
+- **New sensor array**: Extend the current array to 15 pressure sensors on the seat and 4 ToF sensors (VL5L4CD) on the backrest, to be able to detect the user's posture in more detail. Furthermore, add a IMU (ICM-20948) to each surface to detect significant movements of the user (like seating, standing up, leaning forward or backward) and some advanced ToF matrix sensors (VL53L5CX) to detect the spine curvature of the user and the positioning of the calves. This way, we hope to be able to detect the user's posture in more detail and with more accuracy.
+- **User recognition**: Implement a user recognition system to be able to identify the user and store the data in the correct user profile in the database. This way, we can relate the data from the chair with the user's profile/antrhopometric data and analyze the data in a more detailed way.
+- **Extend battery life**: Use a more efficient components, a larger battery, a E-Ink display to show relevant information and implement a sleep mode to extend the battery life
 - **Professional assembly**: Use a custom made PCB design and industrial connectors to improve the reliability of the device
-- **Improve data storage**: Optimize the data storage in the Firebase Realtime Database to reduce the data usage and improve the data analysis and increase the amount of packages, to ensure a live data stream to the database/dashboard
+- **Improve data storage**: Optimize the data storage in the Firebase Realtime Database to reduce the network/storage usage and improve the data analysis by ensuring a live data stream to the database/dashboard. Furthermore, evolve the database structure to store the data of multiple chairs and users.
 
 ## Acknowledgements
 
-Thank you to the team members, our Professor Rafael de Pinho  and FGV EMAp for their contributions, support, or resources provided to this project.
+Thank you to the team members, our Professor Rafael de Pinho André and FGV EMAp for their contributions, support, or resources provided to this project.
 
 ## Contact
 
