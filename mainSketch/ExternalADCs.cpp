@@ -1,4 +1,5 @@
 #include "ExternalADCs.h"
+#include "Debug.h"
 
 // #define DEBUG_EXTERNAL_ADCS
 
@@ -22,10 +23,9 @@ bool ExternalADCs::setup() {
         for (int i = 0; i < 2; i++) {
             // If the ADCs are not connected, show an error and restart the device
             if (!adcs[i].init()) {
-                Serial.print("ADS1115 No ");
-                Serial.print(i);
-                Serial.println(" not connected!");
-                errorHandler.showError(ErrorType::ExternalADCInitFailure);
+                LogFatalln("ADS1115 No ", i, " not connected!")
+
+                errorHandler.showError(ErrorType::ExternalADCInitFailure, true);
                 return false;
             }
             // Set the voltage range of the ADCs

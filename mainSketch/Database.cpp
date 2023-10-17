@@ -8,6 +8,7 @@
 #include "Errors.h"
 #include "Network.h"
 #include "Buffer.h"
+#include "Debug.h"
 
 Database::Database() : last_was_valid(true) {}
 
@@ -40,23 +41,22 @@ void Database::bootLog() {
     if (Firebase.ready()) {
         // Record the current timestamp string to the database
         if (Firebase.pushInt(fbdo, "/bootLog/", getCurrentMillisTimestamp())) {
-            Serial.println("Inicialização registrada com sucesso!");
+            LogInfoln("Inicialização registrada com sucesso!");
         // If an error occurs during this process, we show it as a fatal
         // database error and restart the device
         } else {
-            Serial.println("Ocorreu um erro ao registrar a inicialização:");
-            Serial.println(fbdo.errorReason().c_str());
+            LogFatalln("Ocorreu um erro ao registrar a inicialização:\n", fbdo.errorReason());
             errorHandler.showError(ErrorType::NoDatabaseConnection, true);
         }
     // If the Firebase Database is not ready, we test the connection to
     // the network and to the database and display it on the LED indicator
     } else {
         if (WiFi.status() != WL_CONNECTED) {
+            LogFatalln("Não foi possível conectar à rede para registrar a inicialização");
             errorHandler.showError(ErrorType::NoInternet, true);
-            Serial.println("Reconectando à rede...");
         } else {
+            LogFatalln("Não foi possível conectar ao banco de dados para registrar a inicialização");
             errorHandler.showError(ErrorType::NoDatabaseConnection, true);
-            Serial.println("Reconectando ao banco de dados...");
         }
     }
 }
@@ -103,10 +103,8 @@ bool Database::pushData() {
             // If some error occurs during this process, we show as a fatal database error and
             // restart the device
             } else {
-                Serial.print("Database error: ");
-                Serial.println(fbdo.errorReason());
-                Serial.println(fullDataPath);
-                Serial.println(jsonBuffer.serializedBufferLength());
+                LogErrorln("Database error on ", fullDataPath, ": ", fbdo.errorReason());
+                LogErrorln("Payload buffer length: ", jsonBuffer.serializedBufferLength());
                 errorHandler.showError(ErrorType::NoDatabaseConnection);
 
                 return false;
@@ -175,10 +173,7 @@ void Database::sendData(SensorDataBuffer* dataBuffer) {
     dataBuffer->printBufferState();
 
     // Print the size of the JSON buffer
-    Serial.print("JSON: ");
-    Serial.print(jsonSize);
-    Serial.print("/");
-    Serial.println(jsonBatchSize);
+    LogVerboseln("JSON buffer: ", jsonSize, "/", jsonBatchSize);
 
     dataBuffer->printBufferIndexes();
 

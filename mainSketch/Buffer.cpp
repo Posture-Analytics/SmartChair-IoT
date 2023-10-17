@@ -1,6 +1,6 @@
 #include "Buffer.h"
 #include "Errors.h"
-#include <Arduino.h>
+#include "Debug.h"
 
 bool SensorDataBuffer::isBufferEmpty() const {
     return bufferSize == 0;
@@ -132,17 +132,11 @@ void SensorDataBuffer::printBufferState() const {
     }
 
     // Prints the buffer state
-    Serial.print(bufferSize);
-    Serial.print("/");
-    Serial.println(BUFFER_CAPACITY);
-    Serial.print("; ");
+    LogVerboseln("Buffer state: ", bufferSize, "/", BUFFER_CAPACITY);
 }
 
 void SensorDataBuffer::printBufferIndexes() const {
-    Serial.print("Read index: ");
-    Serial.print(readIndex);
-    Serial.print(" / Write index: ");
-    Serial.println(writeIndex);
+    LogVerboseln("Buffer index: R=", readIndex, " W=", writeIndex);
 }
 
 void SensorDataBuffer::dumpBufferContent(int start, int end) const {
@@ -152,16 +146,14 @@ void SensorDataBuffer::dumpBufferContent(int start, int end) const {
         const sensorData* sample = &buffer[i];
 
         // Print the sample timestamp
-        Serial.print(sample->timestampMillis);
-        Serial.print(" ");
+        LogDebug(sample->timestampMillis, " ");
 
         // Print the sample pressure sensor values
         for (int j = 0; j < PRESSURE_SENSOR_COUNT; j++) {
-            Serial.print(sample->pressureSensor[j]);
-            Serial.print(" ");
+            LogDebug(sample->pressureSensor[j], " ");
         }
 
-        // Print the end of line
-        Serial.println();
+        // Print the end of the line
+        LogDebugln("\n");
     }
 }

@@ -1,4 +1,5 @@
 #include "Errors.h"
+#include "Debug.h"
 
 #include <FastLED.h>
 
@@ -29,7 +30,7 @@ void Errors::showError(ErrorType error, bool fatal) {
 
     // If the error is fatal, restart the device after 3 seconds
     if (fatal) {
-        Serial.println("Reiniciando o dispositivo em 3 segundos...");
+        LogFatalln("Reiniciando o dispositivo em 3 segundos...");
         delay(3000);
         ESP.restart();
     }

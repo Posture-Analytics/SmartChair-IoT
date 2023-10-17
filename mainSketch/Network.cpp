@@ -2,22 +2,22 @@
 
 #include "Network.h"
 #include "Errors.h"
+#include "Debug.h"
 
 void setupWiFi() {
     // Connect to the WiFi network
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    Serial.print("Connecting to Wi-Fi");
+    LogInfo("Connecting to Wi-Fi");
 
     // If the connection fails, start a loop, retrying every 0.5 seconds
     while (WiFi.status() != WL_CONNECTED) {
         errorHandler.showError(ErrorType::NoInternet);
-        Serial.print(".");
+        LogInfo(".");
         delay(500);
     }
 
     // If the connection works, print the IP of the ESP32 on the local network
-    Serial.print("\n\nConnected with IP: ");
-    Serial.println(WiFi.localIP());
+    LogInfoln("\n\nConnected with IP: ", WiFi.localIP());
 }
 
 void syncWithNTPTime() {
@@ -33,12 +33,11 @@ void printLocalTime() {
     // If the local time is not available, we have a fatal error
     if (!getLocalTime(&timeInfo)) {
         errorHandler.showError(ErrorType::NoNTPdata, true);
-        Serial.println("Failed to obtain time");
+        LogFatalln("Failed to obtain time");
         return;
     }
 
-    Serial.println(&timeInfo, "%A, %d/%m/%Y %H:%M:%S");
-    Serial.println();
+    LogInfoln(&timeInfo, "%A, %d/%m/%Y %H:%M:%S");
 }
 
 time_t getCurrentTime() {
@@ -48,7 +47,7 @@ time_t getCurrentTime() {
     // If the local time is not available, we have a fatal error
     if (!getLocalTime(&timeInfo)) {
         errorHandler.showError(ErrorType::NoNTPdata, true);
-        Serial.println("Failed to obtain Unix time");
+        LogFatalln("Failed to obtain Unix time");
         return (0);
     }
 
