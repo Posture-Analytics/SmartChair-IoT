@@ -1,0 +1,23 @@
+# EditorConfig file for code styling
+
+
+# Check what editors have native support at https://editorconfig.org/#pre-installed
+# or require a plugin at https://editorconfig.org/#download
+
+# -> For VSCode, a plugin is required. <-
+# https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig
+
+# This is the top-most configuration file
+root = true
+
+# Use line-feed for end of line
+# End all files with a new line
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.{cpp, h}]
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
