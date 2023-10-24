@@ -1,7 +1,8 @@
 #include "VL53L4CD.h"
 #include <SparkFun_VL53L1X.h>
 
-#define PERIOD 100
+#define BUDGET_PERIOD 50
+#define PERIOD 50
 
 VL53L4CDWrapper::VL53L4CDWrapper(int addresses[], int addrCount) {
     sensorCount = addrCount;
@@ -10,6 +11,7 @@ VL53L4CDWrapper::VL53L4CDWrapper(int addresses[], int addrCount) {
     for (int i = 0; i < sensorCount; i++) {
         sensors[i].setI2CAddress(addresses[i]);
         sensors[i].begin();
+        sensors[i].setTimingBudgetInMs(BUDGET_PERIOD);
         sensors[i].setIntermeasurementPeriod(PERIOD);
         // Throw an error here if one of them didn't start correctly
     }
@@ -37,12 +39,8 @@ void VL53L4CDWrapper::stopSensors() {
 
 void VL53L4CDWrapper::readSensors(int readings[]) {
     for (int i = 0; i < sensorCount; i++) {
-        if (sensors[i].checkForDataReady()) {
-            readings[i] = sensors[i].getDistance();
-            sensors[i].clearInterrupt()
-        } else {
-            readings[i] = 0;
-        }
+        readings[i] = sensors[i].getDistance();
+        sensors[i].clearInterrupt()
     }
 
     return;
