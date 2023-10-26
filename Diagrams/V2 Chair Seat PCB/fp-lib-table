@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "footprints")(type "KiCad")(uri "${KIPRJMOD}/molex_254_horizontal/footprints.pretty")(options "")(descr ""))
+)
