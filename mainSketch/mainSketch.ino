@@ -4,7 +4,7 @@
 #include <Wire.h>
 
 // DEBUG Flag, prints data to Serial instead of sending to the database
-// #define DEBUG
+#define DEBUG
 
 #include "Errors.h"
 #include "Credentials.h"
@@ -18,9 +18,6 @@ Errors errorHandler;
 
 // Create a task to assign the data push to the database to Core 0
 TaskHandle_t sendToDatabaseTask;
-
-// Create an ExternalADCs object to read the data from the external ADCs
-ExternalADCs externalAdcs;
 
 // Create a buffer to store the data to be sent to the database
 SensorDataBuffer dataBuffer;

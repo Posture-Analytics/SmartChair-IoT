@@ -13,14 +13,12 @@
 #define Buffer_H_
 
 #include <time.h>
-
 #include <Arduino.h>
+
+#define PRESSURE_SENSOR_COUNT 16
 
 // Define the capacity of the buffer
 const int BUFFER_CAPACITY = 1024;
-
-// Define the amount of pressure sensors
-const int PRESSURE_SENSOR_COUNT = 12;
 
 /**
  * Struct to organize the collected data
