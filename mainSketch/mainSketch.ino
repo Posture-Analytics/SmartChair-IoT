@@ -51,7 +51,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         sendToDatabase,          // Task function
         "sendToDatabaseLoop",    // Name of task
-        10000,                   // Stack size of task
+        4096,                    // Stack size of task | Reduced from 10000
         NULL,                    // Parameter of the task
         1,                       // Priority of the task
         &sendToDatabaseTask,     // Task handle to keep track of created task
@@ -83,7 +83,7 @@ void sendToDatabase(void* pvParameters) {
         if (!dataBuffer.isBufferEmpty()) {
             database.sendData(&dataBuffer);
         } else {
-            vTaskDelay(10);
+            vTaskDelay(1000);
             yield();
         }
     }

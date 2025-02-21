@@ -10,7 +10,7 @@ ADCs::~ADCs() {
 
 bool ADCs::setup(const int (&ADCsCSPins)[ADCS_COUNT]) {
     for (int i = 0; i < convCount; i++) {
-        if (!converters[i].begin(ADCsCSPins[i])) {
+        if (!converters[i].begin(16, 19, 23, ADCsCSPins[i])) { // *.begin(sck, mosi, miso, cs)
             Serial.println("Failed to initialize MCP3008 chip number " + String(i));
             return false;
         }

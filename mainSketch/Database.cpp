@@ -62,18 +62,24 @@ void Database::bootLog() {
 }
 
 void Database::appendDataToJSON(const sensorData* data) {
-    // Clears the previous data stored in the payload array
-    payload.clear();
-    // Add the pressure sensors' data to the payload
+    FirebaseJson sensorPayload;
+
+    // Add FSR data to a nested "fsr" object
+    FirebaseJson sensorsData;
     for (int i = 0; i < PRESSURE_SENSOR_COUNT; i++) {
-        payload.add(data->pressureSensor[i]);
+      sensorsData.set(("fsr/" + String(i)).c_str(), data->pressureSensor[i]);
     }
 
-    // Set the node where the data will be stored as a the date, with a milliseconds subkey.
-    jsonBuffer.add(data->timestampMillis, payload);
+    // Add VL6180 data to a nested "vl6180" object
+    sensorsData.set("vl6180/0", data->vl6180Distance);
 
-    // Increment the jsonSize to keep control of how many data samples are been stored in the JSON
-    // buffer
+    // Add VL53L4CDs data to a nested "vl53l4cd" object
+    for (int i = 0; i < VL53L4CD_SENSOR_COUNT; i++) {
+      sensorsData.set(("vl53l4cd/" + String(i)).c_str(), data->vl53L4CDDistances[i]);
+    }
+
+    // Add the nested payload to the JSON buffer
+    jsonBuffer.add(data->timestampMillis, sensorsData);
     jsonSize++;
 }
 

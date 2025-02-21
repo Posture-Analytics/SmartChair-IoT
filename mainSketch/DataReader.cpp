@@ -3,6 +3,11 @@
 #include "Buffer.h"
 #include "ADCs.h"
 
+// Define the static member outside the class
+const int DataReader::VL6180_ADDRESSES[1] = {0x29};
+const int DataReader::VL53L4CD_ADDRESSES[4] = {0x52, 0x52, 0x52, 0x52};
+const int DataReader::VL53L4CD_TCA_CHANNELS[4] = {1, 2, 4, 7}; // Change if needed.
+
 void DataReader::updateCurrentTime() {
     // Set the variable 'currentMicros' with the current time in microseconds (us)
     currentMicros = micros();
@@ -14,6 +19,12 @@ bool DataReader::setup() {
         return false;
     }
 
+    // Initialize the VL6180 sensor
+    vl6180.startSensors();
+
+    // Initialize the VL53L4CD sensors
+    vl53l4cds.startSensors();
+
     // If everything went well, return true
     return true;
 }
@@ -22,8 +33,18 @@ void DataReader::addDataToSample(sensorData* newSample) {
     // Fill the buffer with current timestamp (in milliseconds)
     newSample->timestampMillis = getCurrentMillisTimestamp();
 
-    // Fill the buffer with the pressure sensor data collected from the ADCs
+    // Fill the buffer with the pressure sensor data
     adcs.readAll(newSample->pressureSensor);
+
+    // Read VL6180 data
+    int vl6180Readings[VL6180_ADDR_COUNT];
+    vl6180.readSensors(vl6180Readings);
+    newSample->vl6180Distance = vl6180Readings[0];
+
+    // Read VL53L4CDs data
+    int vl53l4cdReadings[VL53L4CD_SENSOR_COUNT];
+    vl53l4cds.readSensors(vl53l4cdReadings);
+    memcpy(newSample->vl53L4CDDistances, vl53l4cdReadings, sizeof(vl53l4cdReadings));
 }
 
 void DataReader::fillBuffer(SensorDataBuffer* dataBuffer) {

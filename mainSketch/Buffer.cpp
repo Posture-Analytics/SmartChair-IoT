@@ -86,6 +86,18 @@ bool SensorDataBuffer::isSampleNull(const sensorData* sample) const {
         }
     }
 
+    // Check if we have some non null data for the VL6180
+    if (sample->vl6180Distance != 0) {
+        return false;
+    }
+
+    // Check if we have some non null data for the VL53L4CD sensors
+    for (int i = 0; i < VL53L4CD_SENSOR_COUNT; i++) {
+      if (sample->vl53L4CDDistances[i] != 0) {
+        return false;
+      }
+    }
+    
     // Return true if all the sample data is null
     return true;
 }
