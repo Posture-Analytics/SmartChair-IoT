@@ -1,17 +1,8 @@
 #include "VL53L4CD.h"
 #include <SparkFun_VL53L1X.h>
+#include "TCA9548A.h"
 
-#define TCA9548A_ADDR 0x70
-
-void TCA9548A(uint8_t bus) {
-  if (bus > 7) return;
-  Wire.beginTransmission(TCA9548A_ADDR);
-  Wire.write(1 << bus);
-  Wire.endTransmission();
-  delay(1); // Critical for TCA stability
-}
-
-VL53L4CDWrapper::VL53L4CDWrapper(const int addresses[], int addrCount, const int tcaChans[]) 
+VL53L4CDWrapper::VL53L4CDWrapper(const int addresses[], int addrCount, const int* tcaChans) 
   : sensorCount(addrCount), 
     tcaChannels(tcaChans) // Now matches const-ness
 {
@@ -19,15 +10,21 @@ VL53L4CDWrapper::VL53L4CDWrapper(const int addresses[], int addrCount, const int
   delay(100);
 
   for (int i = 0; i < sensorCount; i++) {
-    TCA9548A(tcaChannels[i]); // Select TCA channel first!
-    delay(200); // Increased power-up delay
+  tca.selectBus(tcaChannels[i]);
+  delay(200);
 
-    sensors[i].setI2CAddress(addresses[i]);
-    if (sensors[i].begin()) {
-      sensors[i].setTimingBudgetInMs(200); // From 50ms to 200ms
-      sensors[i].setIntermeasurementPeriod(250); // Must be ≥ timing budget
-    }
-    delay(50);
+  sensors[i].setI2CAddress(addresses[i]);
+
+  // Corrected: Check for SUCCESS (0)
+  if (sensors[i].begin() == 0) { 
+    sensors[i].setTimingBudgetInMs(500);
+    sensors[i].setIntermeasurementPeriod(550);
+  } /* else {
+    Serial.print("Sensor ");
+    Serial.print(i);
+    Serial.println(" failed to initialize!");
+  } */
+  delay(50);
   }
 }
 
@@ -37,7 +34,7 @@ VL53L4CDWrapper::~VL53L4CDWrapper() {
 
 void VL53L4CDWrapper::startSensors() {
   for (int i = 0; i < sensorCount; i++) {
-    TCA9548A(tcaChannels[i]); // Select the correct TCA channel
+    tca.selectBus(tcaChannels[i]); // Select the correct TCA channel
     sensors[i].startRanging();
     delay(50); // Optional short delay for stability
   }
@@ -53,17 +50,21 @@ void VL53L4CDWrapper::stopSensors() {
 
 void VL53L4CDWrapper::readSensors(int readings[]) {
   for (int i = 0; i < sensorCount; i++) {
-    TCA9548A(tcaChannels[i]);
-    // delay(100);
+    tca.selectBus(tcaChannels[i]);
     
-    bool dataReady = sensors[i].checkForDataReady();
-    // delay(50);
-    
-    if (dataReady) {
+    // Add data-ready waiting with timeout (like your test code)
+    sensors[i].startRanging();
+    unsigned long start = millis();
+    while (!sensors[i].checkForDataReady() && (millis() - start < 500)) {
+      delay(5);
+    }
+
+    if (sensors[i].checkForDataReady()) {
       readings[i] = sensors[i].getDistance();
       sensors[i].clearInterrupt();
     } else {
-      readings[i] = -1;
+      readings[i] = -1; // Timeout
     }
+    sensors[i].stopRanging();
   }
 }

@@ -1,12 +1,15 @@
 #include "VL6180Wrapper.h"
 #include <VL6180X.h>
+#include "TCA9548A.h"
 
-
-VL6180Wrapper::VL6180Wrapper(const int addresses[], int addrCount, int prd, int scl) : period(prd), scale(scl) {
+VL6180Wrapper::VL6180Wrapper(const int addresses[], int addrCount, int prd, int scl, const int* tcaChans) 
+  : period(prd), scale(scl), tcaChannels(tcaChans) 
+  {
     sensorCount = addrCount;
     sensors = new VL6180X[addrCount];
 
     for (int i = 0; i < sensorCount; i++) {
+        tca.selectBus(tcaChannels[i]);
         sensors[i].setAddress(addresses[i]);
         sensors[i].init();
         sensors[i].configureDefault();
@@ -28,15 +31,16 @@ VL6180Wrapper::~VL6180Wrapper() {
 }
 
 void VL6180Wrapper::startSensors() {
-    for (int i = 0; i < sensorCount; i++) {
-        sensors[i].startRangeContinuous(100);
-    }
-
-    return;
+  for (int i = 0; i < sensorCount; i++) {
+    tca.selectBus(tcaChannels[i]);
+    sensors[i].startRangeContinuous(100);
+  }
+  delay(100); // Add stabilization delay
 }
 
 void VL6180Wrapper::stopSensors() {
     for (int i = 0; i < sensorCount; i++) {
+        tca.selectBus(tcaChannels[i]);
         sensors[i].stopContinuous();
     }
 
@@ -47,10 +51,12 @@ void VL6180Wrapper::stopSensors() {
 }
 
 void VL6180Wrapper::readSensors(int* reading) {
-    for (int i = 0; i < sensorCount; i++) {
-        reading[i] = sensors[i].readRangeContinuousMillimeters();
-        //reading[i] = sensors[i].getScaling();
+  for (int i = 0; i < sensorCount; i++) {
+    tca.selectBus(tcaChannels[i]);
+    if (sensors[i].timeoutOccurred()) {
+      reading[i] = -1; // Handle timeout
+    } else {
+      reading[i] = sensors[i].readRangeContinuousMillimeters();
     }
-
-    return;
+  }
 }

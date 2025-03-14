@@ -15,7 +15,7 @@
 #include "VL53L4CD.h"
 
 // Sample Rate of the data collection, in hertz (Hz)
-const int SAMPLE_RATE = 2;
+const int SAMPLE_RATE = 4;
 
 
 /**
@@ -30,6 +30,7 @@ class DataReader {
     // VL6180 Sensor
     static const int VL6180_ADDRESSES[1];  // I2C address of the sensor
     static constexpr int VL6180_ADDR_COUNT = 1;
+    static const int VL6180_TCA_CHANNELS[1];
     static constexpr int VL6180_PERIOD = 100;  // Measurement period (ms)
     static constexpr int VL6180_SCALE = 1;     // Scaling factor
     VL6180Wrapper vl6180;
@@ -54,9 +55,9 @@ public:
 
     // Initialize VL6180 and the VL53L4CDs in the constructor
     DataReader() : 
-        vl6180(VL6180_ADDRESSES, VL6180_ADDR_COUNT, VL6180_PERIOD, VL6180_SCALE),
+        vl6180(VL6180_ADDRESSES, VL6180_ADDR_COUNT, VL6180_PERIOD, VL6180_SCALE, VL6180_TCA_CHANNELS),
         vl53l4cds(VL53L4CD_ADDRESSES, VL53L4CD_ADDR_COUNT, VL53L4CD_TCA_CHANNELS) 
-    {}
+      {}
     /**
      * Setup the sensors and the devices' pins
      * 

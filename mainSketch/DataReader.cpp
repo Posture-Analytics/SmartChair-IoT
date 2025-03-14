@@ -5,8 +5,9 @@
 
 // Define the static member outside the class
 const int DataReader::VL6180_ADDRESSES[1] = {0x29};
+const int DataReader::VL6180_TCA_CHANNELS[1] = {0}; // Change if needed.
 const int DataReader::VL53L4CD_ADDRESSES[4] = {0x52, 0x52, 0x52, 0x52};
-const int DataReader::VL53L4CD_TCA_CHANNELS[4] = {1, 2, 4, 7}; // Change if needed.
+const int DataReader::VL53L4CD_TCA_CHANNELS[4] = {1, 2, 5 , 6}; // Change if needed.
 
 void DataReader::updateCurrentTime() {
     // Set the variable 'currentMicros' with the current time in microseconds (us)

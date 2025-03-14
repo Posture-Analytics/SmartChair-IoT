@@ -51,9 +51,9 @@ void setup() {
     xTaskCreatePinnedToCore(
         sendToDatabase,          // Task function
         "sendToDatabaseLoop",    // Name of task
-        4096,                    // Stack size of task | Reduced from 10000
+        8192,                    // Stack size of task | Reduced from 10000
         NULL,                    // Parameter of the task
-        1,                       // Priority of the task
+        2,                       // Priority of the task
         &sendToDatabaseTask,     // Task handle to keep track of created task
         0);                      // Pin task to core 0
 

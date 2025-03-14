@@ -8,9 +8,10 @@ class VL6180Wrapper {
     int period = 100;
     int scale = 1;
     VL6180X *sensors;
+    const int* tcaChannels;
 
  public:
-    VL6180Wrapper(const int addresses[], int addrCount, int prd, int scl);
+    VL6180Wrapper(const int addresses[], int addrCount, int prd, int scl, const int* tcaChans);
     ~VL6180Wrapper();
 
     void startSensors();
