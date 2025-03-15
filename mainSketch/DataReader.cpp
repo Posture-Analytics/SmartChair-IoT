@@ -37,11 +37,12 @@ void DataReader::addDataToSample(sensorData* newSample) {
     // Fill the buffer with the pressure sensor data
     adcs.readAll(newSample->pressureSensor);
     
+    delay(10);
     // Reset I2C bus after SPI activity
-    Wire.end();
+    /*Wire.end();
     delay(10);
     Wire.begin(21, 22); // SDA=21, SCL=22 for ESP32
-    delay(50);
+    delay(50);*/
 
     // Read VL6180 data
     int vl6180Readings[VL6180_ADDR_COUNT];
