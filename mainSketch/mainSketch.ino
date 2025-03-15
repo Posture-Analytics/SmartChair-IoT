@@ -31,7 +31,7 @@ Database database;
 // Initialization void
 void setup() {
     Serial.begin(115200);  // Open the Serial Port for communication with baudrate 115200
-    Wire.begin();  // Start the I2C communication
+    Wire.begin(21, 22, 400000);  // Start the I2C communication
 
     // Setup the sensors
     if(!dataReader.setup()){

@@ -12,7 +12,7 @@
 #define ADCS_CHANNEL_COUNT 8
 
 // Default CS pins for the MCP3008 chips.
-static const int ADCS_CS_PINS[] = {14, 32};
+static const int ADCS_CS_PINS[] = {32, 15};
 static const int ADCS_COUNT = sizeof(ADCS_CS_PINS)/sizeof(*ADCS_CS_PINS);
 
 /**

@@ -10,7 +10,7 @@ ADCs::~ADCs() {
 
 bool ADCs::setup(const int (&ADCsCSPins)[ADCS_COUNT]) {
     for (int i = 0; i < convCount; i++) {
-        if (!converters[i].begin(16, 19, 23, ADCsCSPins[i])) { // *.begin(sck, mosi, miso, cs)
+        if (!converters[i].begin(14, 19, 23, ADCsCSPins[i])) { // *.begin(sck, mosi, miso, cs)
             Serial.println("Failed to initialize MCP3008 chip number " + String(i));
             return false;
         }
@@ -32,23 +32,21 @@ int ADCs::read(int chip, int channel) const {
         return -2;
     }
 
-    return converters[chip].readADC(channel);
+    int value = converters[chip].readADC(channel);
+    value &= 0x3FF; // Mask to 10-bit (0-1023)
+    return value;
 }
 
 bool ADCs::readAll(int (&readings)[ADCS_COUNT * ADCS_CHANNEL_COUNT]) const {
-
     int value = 0;
     for (int chip = 0; chip < convCount; chip++) {
         for (int channel = 0; channel < ADCS_CHANNEL_COUNT; channel++) {
             value = read(chip, channel);
-
             // Check for error values from read function
             if (value == -1 || value == -2) {
                 return false;  // Return false if an error was detected
             }
-
             readings[chip * ADCS_CHANNEL_COUNT + channel] = value;        }
     }
-
     return true;
 }

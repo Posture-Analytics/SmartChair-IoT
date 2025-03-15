@@ -17,8 +17,8 @@ VL53L4CDWrapper::VL53L4CDWrapper(const int addresses[], int addrCount, const int
 
   // Corrected: Check for SUCCESS (0)
   if (sensors[i].begin() == 0) { 
-    sensors[i].setTimingBudgetInMs(500);
-    sensors[i].setIntermeasurementPeriod(550);
+    sensors[i].setTimingBudgetInMs(200);
+    sensors[i].setIntermeasurementPeriod(250);
   } /* else {
     Serial.print("Sensor ");
     Serial.print(i);
@@ -52,19 +52,14 @@ void VL53L4CDWrapper::readSensors(int readings[]) {
   for (int i = 0; i < sensorCount; i++) {
     tca.selectBus(tcaChannels[i]);
     
-    // Add data-ready waiting with timeout (like your test code)
-    sensors[i].startRanging();
-    unsigned long start = millis();
-    while (!sensors[i].checkForDataReady() && (millis() - start < 500)) {
-      delay(5);
-    }
-
-    if (sensors[i].checkForDataReady()) {
+    // Remove startRanging/stopRanging here
+    bool dataReady = sensors[i].checkForDataReady();
+    
+    if (dataReady) {
       readings[i] = sensors[i].getDistance();
       sensors[i].clearInterrupt();
     } else {
-      readings[i] = -1; // Timeout
+      readings[i] = -1; // Indicate data not ready
     }
-    sensors[i].stopRanging();
   }
 }

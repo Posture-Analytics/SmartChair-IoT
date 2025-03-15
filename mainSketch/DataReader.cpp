@@ -36,11 +36,15 @@ void DataReader::addDataToSample(sensorData* newSample) {
 
     // Fill the buffer with the pressure sensor data
     adcs.readAll(newSample->pressureSensor);
+    
+    delay(20); // Let I2C bus settle
 
     // Read VL6180 data
     int vl6180Readings[VL6180_ADDR_COUNT];
     vl6180.readSensors(vl6180Readings);
     newSample->vl6180Distance = vl6180Readings[0];
+
+    delay(20);
 
     // Read VL53L4CDs data
     int vl53l4cdReadings[VL53L4CD_SENSOR_COUNT];

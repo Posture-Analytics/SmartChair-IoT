@@ -15,7 +15,7 @@
 #include "VL53L4CD.h"
 
 // Sample Rate of the data collection, in hertz (Hz)
-const int SAMPLE_RATE = 4;
+const int SAMPLE_RATE = 1;
 
 
 /**
