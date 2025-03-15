@@ -14,5 +14,5 @@ void TCA9548A::selectBus(uint8_t bus) {
   Wire.beginTransmission(TCA9548A_ADDR);
   Wire.write(1 << bus);
   Wire.endTransmission();
-  delay(2); // for stability
+  delay(5); // for stability
 }

@@ -17,8 +17,8 @@ VL53L4CDWrapper::VL53L4CDWrapper(const int addresses[], int addrCount, const int
 
   // Corrected: Check for SUCCESS (0)
   if (sensors[i].begin() == 0) { 
-    sensors[i].setTimingBudgetInMs(200);
-    sensors[i].setIntermeasurementPeriod(250);
+    sensors[i].setTimingBudgetInMs(500);
+    sensors[i].setIntermeasurementPeriod(600);
   } /* else {
     Serial.print("Sensor ");
     Serial.print(i);

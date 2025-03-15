@@ -53,8 +53,12 @@ void VL6180Wrapper::stopSensors() {
 void VL6180Wrapper::readSensors(int* reading) {
   for (int i = 0; i < sensorCount; i++) {
     tca.selectBus(tcaChannels[i]);
-    sensors[i].stopContinuous();
-    reading[i] = sensors[i].readRangeSingleMillimeters(); // Single read
-    sensors[i].startRangeContinuous(100); // Restart continuous if needed
+    if (sensors[i].timeoutOccurred()) {
+      reading[i] = -1; 
+      sensors[i].stopContinuous(); // Reset sensor
+      sensors[i].startRangeContinuous(100);
+    } else {
+      reading[i] = sensors[i].readRangeContinuousMillimeters();
+    }
   }
 }
