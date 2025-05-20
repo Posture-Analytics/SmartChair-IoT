@@ -13,6 +13,7 @@
 #include "Buffer.h"
 #include "VL6180Wrapper.h"
 #include "VL53L4CD.h"
+#include "VL53L5CXWrapper.h"
 
 // Sample Rate of the data collection, in hertz (Hz)
 const int SAMPLE_RATE = 1;
@@ -41,6 +42,12 @@ class DataReader {
     static const int VL53L4CD_TCA_CHANNELS[4];
     VL53L4CDWrapper vl53l4cds;
 
+    // VL53L5CX Sensors
+    static const int VL53L5CX_ADDRESSES[2];
+    static constexpr int VL53L5CX_ADDR_COUNT = 2;
+    static const int VL53L5CX_TCA_CHANNELS[2];
+    VL53L5CXWrapper vl53l5cxs;
+
     // Set the interval between data collect, in microseconds (us)
     const int dataCollectIntervalMicros = 1e6 / SAMPLE_RATE;
     // Save the time of the last data collect, in microseconds (us)
@@ -56,7 +63,8 @@ public:
     // Initialize VL6180 and the VL53L4CDs in the constructor
     DataReader() : 
         vl6180(VL6180_ADDRESSES, VL6180_ADDR_COUNT, VL6180_PERIOD, VL6180_SCALE, VL6180_TCA_CHANNELS),
-        vl53l4cds(VL53L4CD_ADDRESSES, VL53L4CD_ADDR_COUNT, VL53L4CD_TCA_CHANNELS) 
+        vl53l4cds(VL53L4CD_ADDRESSES, VL53L4CD_ADDR_COUNT, VL53L4CD_TCA_CHANNELS),
+        vl53l5cxs(VL53L5CX_ADDRESSES, VL53L5CX_ADDR_COUNT, VL53L5CX_TCA_CHANNELS, tca)
       {}
     /**
      * Setup the sensors and the devices' pins

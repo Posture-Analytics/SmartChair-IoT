@@ -67,7 +67,7 @@ void Database::appendDataToJSON(const sensorData* data) {
     // Add FSR data to a nested "fsr" object
     FirebaseJson sensorsData;
     for (int i = 0; i < PRESSURE_SENSOR_COUNT; i++) {
-      sensorsData.set(("fsr/" + String(i)).c_str(), data->pressureSensor[i]);
+        sensorsData.set(("fsr/" + String(i)).c_str(), data->pressureSensor[i]);
     }
 
     // Add VL6180 data to a nested "vl6180" object
@@ -75,7 +75,17 @@ void Database::appendDataToJSON(const sensorData* data) {
 
     // Add VL53L4CDs data to a nested "vl53l4cd" object
     for (int i = 0; i < VL53L4CD_SENSOR_COUNT; i++) {
-      sensorsData.set(("vl53l4cd/" + String(i)).c_str(), data->vl53L4CDDistances[i]);
+        sensorsData.set(("vl53l4cd/" + String(i)).c_str(), data->vl53L4CDDistances[i]);
+    }
+
+    // Add VL53L5CXs data to a nested "vl53l5cx" object
+    for (int sensor = 0; sensor < VL53L5CX_SENSOR_COUNT; sensor++) {
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                String key = "vl53l5cx/" + String(sensor) + "/" + String(y) + "/" + String(x);
+                sensorsData.set(key.c_str(), data->vl53L5CXDistances[sensor][y][x]);
+            }
+        }
     }
 
     // Add the nested payload to the JSON buffer

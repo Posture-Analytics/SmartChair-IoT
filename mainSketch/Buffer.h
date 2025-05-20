@@ -17,9 +17,10 @@
 
 #define PRESSURE_SENSOR_COUNT 16
 #define VL53L4CD_SENSOR_COUNT 4
+#define VL53L5CX_SENSOR_COUNT 2
 
 // Define the capacity of the buffer
-const int BUFFER_CAPACITY = 256; // was 1024
+const int BUFFER_CAPACITY = 128; // was 1024 // was 256
 
 /**
  * Struct to organize the collected data
@@ -39,6 +40,9 @@ struct sensorData {
 
     // VL53L4CDs distances readings (mm)
     int vl53L4CDDistances[VL53L4CD_SENSOR_COUNT] = {0};
+
+    // VL53L5CXs distances readings (mm) (3d array)
+    int16_t vl53L5CXDistances[VL53L5CX_SENSOR_COUNT][8][8] = {{{0}}};
 };
 
 // Define a class to store the collected data

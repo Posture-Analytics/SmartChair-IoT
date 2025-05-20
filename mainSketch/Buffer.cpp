@@ -98,6 +98,17 @@ bool SensorDataBuffer::isSampleNull(const sensorData* sample) const {
       }
     }
     
+    // Check if we have some non-null data for the VL53L5CX sensors
+    for (int sensor = 0; sensor < VL53L5CX_SENSOR_COUNT; sensor++) {
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                if (sample->vl53L5CXDistances[sensor][y][x] != 0) {
+                    return false;
+                }
+            }
+        }
+    }
+
     // Return true if all the sample data is null
     return true;
 }
