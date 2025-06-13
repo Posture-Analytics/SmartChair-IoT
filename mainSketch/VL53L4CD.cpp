@@ -2,9 +2,10 @@
 #include <SparkFun_VL53L1X.h>
 #include "TCA9548A.h"
 
-VL53L4CDWrapper::VL53L4CDWrapper(const int addresses[], int addrCount, const int* tcaChans) 
+VL53L4CDWrapper::VL53L4CDWrapper(const int addresses[], int addrCount, const int* tcaChans, TCA9548A& tcaRef) 
   : sensorCount(addrCount), 
-    tcaChannels(tcaChans) // Now matches const-ness
+    tcaChannels(tcaChans),
+    tca(tcaRef) // Now matches const-ness
 {
   sensors = new SFEVL53L1X[sensorCount];
   delay(100);

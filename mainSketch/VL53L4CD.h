@@ -7,8 +7,9 @@ class VL53L4CDWrapper {
   int sensorCount;
   SFEVL53L1X *sensors;
   const int* tcaChannels;
+  TCA9548A& tca;
 public:
-  VL53L4CDWrapper(const int addresses[], int addrCount, const int tcaChans[]);
+  VL53L4CDWrapper(const int addresses[], int addrCount, const int tcaChans[], TCA9548A& tcaRef);
   ~VL53L4CDWrapper();
 
   void startSensors();

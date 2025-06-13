@@ -2,8 +2,8 @@
 #include <VL6180X.h>
 #include "TCA9548A.h"
 
-VL6180Wrapper::VL6180Wrapper(const int addresses[], int addrCount, int prd, int scl, const int* tcaChans) 
-  : period(prd), scale(scl), tcaChannels(tcaChans) 
+VL6180Wrapper::VL6180Wrapper(const int addresses[], int addrCount, int prd, int scl, const int* tcaChans, TCA9548A& tcaRef) 
+  : period(prd), scale(scl), tcaChannels(tcaChans), tca(tcaRef)
   {
     sensorCount = addrCount;
     sensors = new VL6180X[addrCount];
