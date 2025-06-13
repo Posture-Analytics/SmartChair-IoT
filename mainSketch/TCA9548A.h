@@ -40,6 +40,7 @@ private:
 };
 
 // Create a global instance that can be used throughout the program
-extern TCA9548A tca;
+extern TCA9548A tcaLower;
+extern TCA9548A tcaUpper;
 
 #endif // TCA9548A_H

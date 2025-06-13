@@ -2,6 +2,7 @@
 #define VL53L4CD_WRAPPER_H_
 
 #include <SparkFun_VL53L1X.h>
+#include "TCA9548A.h"
 
 class VL53L4CDWrapper {
   int sensorCount;

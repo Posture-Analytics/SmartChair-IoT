@@ -2,6 +2,7 @@
 #define VL6180_WRAPPER_H_
 
 #include <VL6180X.h>
+#include "TCA9548A.h"
 
 class VL6180Wrapper {
     int sensorCount;
